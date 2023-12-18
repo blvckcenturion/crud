@@ -13,7 +13,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Select } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
 import { useFieldArray, useForm } from "react-hook-form"
 import * as z from "zod"
@@ -21,12 +20,14 @@ import { Product, ProductSchema } from "./data/schema"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "react-query"
 import { supabase } from "@/lib/client/supabase"
+import { useToast } from "@/components/ui/use-toast"
 
 interface ProductFormProps {
+  product?: Product | null; // Optional property for existing product data
   onOpenChange: (isOpen: boolean) => void;
 }
 
-export function ProductForm({ onOpenChange }: ProductFormProps) {
+export function ProductForm({ product, onOpenChange }: ProductFormProps) {
     const form = useForm({
       resolver: zodResolver(ProductSchema.omit({
         id: true,
@@ -36,7 +37,7 @@ export function ProductForm({ onOpenChange }: ProductFormProps) {
         provider_id: true
       })),
       mode: "onChange",
-      defaultValues: {
+      defaultValues: product || {
         description: "",
         unit: "",
         max_unit_description: "",
@@ -46,6 +47,8 @@ export function ProductForm({ onOpenChange }: ProductFormProps) {
       }
       // Default values for other fields can be set here if needed
     });
+  
+    const {toast} = useToast()
   
     const queryClient = useQueryClient();
 
@@ -74,10 +77,43 @@ export function ProductForm({ onOpenChange }: ProductFormProps) {
       }
     }
   );
+
+  const updateProductMutation = useMutation(
+    async (productToUpdate: Product) => {
+      const { data, error } = await supabase
+        .from('products')
+        .update(productToUpdate)
+        .match({ id: productToUpdate.id });
+      if (error) throw new Error(error.message);
+      return data;
+    },
+    {
+      onSuccess: () => {
+        onOpenChange(false); // Close the dialog/form
+        toast({
+          variant: "default",
+          title: "Producto actualizado con éxito" // Success message for update
+        });
+        queryClient.invalidateQueries('products'); // Refresh the product list
+      },
+      onError: (error: Error) => {
+        toast({
+          variant: "destructive",
+          title: "Error al actualizar el producto" // Error message for update
+        });
+      }
+    }
+  );
   
     function onSubmit(data: any) {
-      addProductMutation.mutate(data);
-      // Insert form submission logic here
+      if (product) {
+        // If `product` is provided, call the update mutation
+        // Ensure to include the product's id in the mutation
+        updateProductMutation.mutate({ ...data, id: product.id });
+      } else {
+        // If no `product` is provided, call the add mutation
+        addProductMutation.mutate(data);
+      }
     }
   
     return (

@@ -18,13 +18,25 @@ import { z } from "zod";
 import { Product, ProductSchema } from "./data/schema";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { createColumns } from "./data/columns";
-import { toast } from "@/components/ui/use-toast";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog"; // Adjust the import paths according to your project
+import { ProductForm } from "./product-form";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function ProductPage() { 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+  const [updateProduct, setUpdateProduct] = useState<Product | null>(null);
+  
   const openDialog = (product: Product) => {
     setSelectedProduct(product);
     setIsDialogOpen(true);
@@ -34,10 +46,22 @@ export default function ProductPage() {
     setIsDialogOpen(false);
     setSelectedProduct(null);
   };
+
+  const openUpdateDialog = (product: Product) => {
+    setUpdateProduct(product);
+    setIsUpdateDialogOpen(true);
+  };
+
+  const closeUpdateDialog = () => {
+    setIsUpdateDialogOpen(false);
+    setUpdateProduct(null);
+  };
   
   const queryClient = useQueryClient();
 
-  const columns = createColumns(openDialog);
+  const { toast } = useToast()
+  
+  const columns = createColumns(openDialog, openUpdateDialog);
 
   const { data, isLoading, isError, isSuccess } = useQuery(
     "products",
@@ -105,7 +129,18 @@ export default function ProductPage() {
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
-    </AlertDialog>
+      </AlertDialog>
+      <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
+      <DialogContent className="w-full sm:w-1/2 sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Editar Producto</DialogTitle>
+          <DialogDescription>
+            Aquí puedes editar la información del producto. Haz clic en guardar cuando hayas terminado.
+          </DialogDescription>
+        </DialogHeader>
+        <ProductForm product={updateProduct} onOpenChange={closeUpdateDialog} />
+      </DialogContent>
+    </Dialog>
     </div>
   );
 }

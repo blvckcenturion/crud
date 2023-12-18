@@ -17,7 +17,7 @@ import { ProductSchema } from "./schema"
 import { format } from 'date-fns';
 import { Checkbox } from "@/components/ui/checkbox"
 
-export const createColumns = (openDialog: (product: Product) => void): ColumnDef<Product>[] => [
+export const createColumns = (openDialog: (product: Product) => void, openUpdateDialog: (product: Product) => void): ColumnDef<Product>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -97,7 +97,7 @@ export const createColumns = (openDialog: (product: Product) => void): ColumnDef
     cell: ({ row }) => format(new Date(row.original.updated_at!), "yyyy-MM-dd HH:mm:ss")
   },
   {
-      id: "actions",
+    id: "actions",
       cell: ({ row }) => {
         const payment = row.original
     
@@ -117,8 +117,7 @@ export const createColumns = (openDialog: (product: Product) => void): ColumnDef
                 Copiar
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Ver</DropdownMenuItem>
-              <DropdownMenuItem>Editar</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => openUpdateDialog(row.original)}>Editar</DropdownMenuItem>
               <DropdownMenuItem onClick={() => openDialog(row.original)}>Eliminar</DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
