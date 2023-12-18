@@ -24,9 +24,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
+  DialogDescription
 } from "@/components/ui/dialog"; // Adjust the import paths according to your project
 import { ProductForm } from "./product-form";
 import { useToast } from "@/components/ui/use-toast";
