@@ -15,7 +15,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { z } from "zod";
-import { Product, ProductSchema } from "./data/schema";
+import { ClassEnum, Product, ProductSchema, classMapping, classNumericalMapping, formatMapping, formatNumericalMapping, typeMapping, typeNumericalMapping } from "./data/schema";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { createColumns } from "./data/columns";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
@@ -28,6 +28,23 @@ import {
 } from "@/components/ui/dialog"; // Adjust the import paths according to your project
 import { ProductForm } from "./product-form";
 import { useToast } from "@/components/ui/use-toast";
+
+
+// Function to reverse map numerical values to enum values
+function reverseMapEnum(value: number, enumObject: Record<string, number>): string | undefined {
+  const entry = Object.entries(enumObject).find(([_, num]) => num === value);
+  return entry ? entry[0] : undefined;
+}
+
+// Function to map data to enums
+function mapDataToEnums(data: any): any {
+  return {
+    ...data,
+    class: reverseMapEnum(data.class, classNumericalMapping),
+    format: reverseMapEnum(data.format, formatNumericalMapping),
+    type: reverseMapEnum(data.type, typeNumericalMapping),
+  };
+}
 
 export default function ProductPage() { 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -68,12 +85,17 @@ export default function ProductPage() {
         .from("products")
         .select()
         .order("id", { ascending: true });
-
+  
       if (error) {
         throw new Error(error.message);
       }
 
-      return z.array(ProductSchema).parse(data);
+      // Map the data to enums
+      const mappedData = data.map((item: any) => mapDataToEnums(item));
+
+      console.log(mappedData)
+
+      return z.array(ProductSchema).parse(mappedData);
     }
   );
 

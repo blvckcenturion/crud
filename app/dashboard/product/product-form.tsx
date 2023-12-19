@@ -11,20 +11,28 @@ import {
     FormMessage,
   } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { cn } from "@/lib/utils"
-import { useFieldArray, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Product, ProductSchema } from "./data/schema"
+import { Product, ProductSchema, classMapping, classNumericalMapping, formatMapping, formatNumericalMapping, typeMapping, typeNumericalMapping } from "./data/schema"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "react-query"
 import { supabase } from "@/lib/client/supabase"
 import { useToast } from "@/components/ui/use-toast"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface ProductFormProps {
   product?: Product | null; // Optional property for existing product data
   onOpenChange: (isOpen: boolean) => void;
+}
+
+function getKeyByValue(object: Record<string, string>, value: string): string | undefined {
+  return Object.keys(object).find(key => object[key] === value);
 }
 
 export function ProductForm({ product, onOpenChange }: ProductFormProps) {
@@ -38,14 +46,13 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
       })),
       mode: "onChange",
       defaultValues: product || {
-        description: "",
-        unit: "",
-        max_unit_description: "",
-        measure_unit_description: "",
-        unit_x_max_unit: 0, // or another appropriate default value
-        unit_x_measure_unit: 0, // or another appropriate default value
+        name: '',
+        description: '',
+        alias: '',
+        class: undefined,
+        format: undefined,
+        type: undefined
       }
-      // Default values for other fields can be set here if needed
     });
   
     const {toast} = useToast()
@@ -106,19 +113,56 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
   );
   
     function onSubmit(data: any) {
+      const mappedData = {
+        ...data,
+        class: classNumericalMapping[data.class] || null,
+        format: formatNumericalMapping[data.format] || null,
+        type: typeNumericalMapping[data.type] || null
+      };
+    
       if (product) {
-        // If `product` is provided, call the update mutation
-        // Ensure to include the product's id in the mutation
-        updateProductMutation.mutate({ ...data, id: product.id });
+        // If updating, include the product's id
+        updateProductMutation.mutate({ ...mappedData, id: product.id });
       } else {
-        // If no `product` is provided, call the add mutation
-        addProductMutation.mutate(data);
+        // If adding a new product
+        addProductMutation.mutate(mappedData);
       }
     }
+    
   
     return (
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="px-2 space-y-8 overflow-y-auto max-h-[80vh]">
+          {/* Name Field */}
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nombre</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+        {/* Alias Field */}
+        <FormField
+          control={form.control}
+          name="alias"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Alias</FormLabel>
+              <FormControl>
+              <Input {...field} value={field.value || ''} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+          
           {/* Description Field */}
           <FormField
             control={form.control}
@@ -133,91 +177,68 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
               </FormItem>
             )}
           />
-  
-          {/* Unit Field */}
-          <FormField
-            control={form.control}
-            name="unit"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Unidad</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-  
-          {/* Max Unit Description Field */}
-          <FormField
-            control={form.control}
-            name="max_unit_description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descripción de la Unidad Máxima</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-  
-          {/* Measure Unit Description Field */}
-          <FormField
-            control={form.control}
-            name="measure_unit_description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descripción de la Unidad de Medida</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-  
-           {/* Unit x Max Unit Field */}
-          <FormField
-            control={form.control}
-            name="unit_x_max_unit"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Unidad x Unidad Máxima</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    {...field} 
-                    value={field.value || ''} 
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => form.setValue('unit_x_max_unit', e.target.value ? parseInt(e.target.value) : 0)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
-          {/* Unit x Measure Unit Field */}
-          <FormField
-            control={form.control}
-            name="unit_x_measure_unit"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Unidad x Unidad de Medida</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    {...field} 
-                    value={field.value || ''} 
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => form.setValue('unit_x_measure_unit', e.target.value ? parseInt(e.target.value) : 0)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* Class Field */}
+          <FormField control={form.control} name="class" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Clase</FormLabel>
+              <FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione una clase" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(classMapping).map(([label, value]) => (
+                      <SelectItem key={value} value={value}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+          
+
+          {/* Format Field */}
+          <FormField control={form.control} name="format" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Formato</FormLabel>
+              <FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccione un formato" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(formatMapping).map(([label, value]) => (
+                      <SelectItem key={value} value={value}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}/>
+        
+
+        {/* Type Field */}
+        <FormField control={form.control} name="type" render={({ field }) => (
+          <FormItem>
+            <FormLabel>Tipo</FormLabel>
+            <FormControl>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione un tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(typeMapping).map(([label, value]) => (
+                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}/>
   
           {/* Submit Button */}
           <Button type="submit">Guardar</Button>

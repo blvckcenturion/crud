@@ -13,41 +13,38 @@ export interface Database {
       products: {
         Row: {
           active: boolean
+          alias: string | null
+          class: number
           created_at: string
-          description: string
+          description: string | null
+          format: number
           id: number
-          max_unit_description: string
-          measure_unit_description: string
           provider_id: number | null
-          unit: string
-          unit_x_max_unit: number
-          unit_x_measure_unit: number
+          type: number
           updated_at: string
         }
         Insert: {
-          active: boolean
+          active?: boolean
+          alias?: string | null
+          class: number
           created_at?: string
-          description: string
+          description?: string | null
+          format: number
           id?: number
-          max_unit_description: string
-          measure_unit_description: string
           provider_id?: number | null
-          unit: string
-          unit_x_max_unit: number
-          unit_x_measure_unit: number
+          type: number
           updated_at?: string
         }
         Update: {
           active?: boolean
+          alias?: string | null
+          class?: number
           created_at?: string
-          description?: string
+          description?: string | null
+          format?: number
           id?: number
-          max_unit_description?: string
-          measure_unit_description?: string
           provider_id?: number | null
-          unit?: string
-          unit_x_max_unit?: number
-          unit_x_measure_unit?: number
+          type?: number
           updated_at?: string
         }
         Relationships: [

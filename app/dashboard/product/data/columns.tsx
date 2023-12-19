@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import { Product } from "./schema"
+import { Product, classMapping, formatMapping, typeMapping } from "./schema"
 
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown, MoreHorizontal } from "lucide-react"
@@ -13,9 +13,24 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
-import { ProductSchema } from "./schema"
 import { format } from 'date-fns';
 import { Checkbox } from "@/components/ui/checkbox"
+
+type EnumType = 'class' | 'format' | 'type';
+
+const getEnumLabel = (type: EnumType, value: string | number) => {
+  const mappings: Record<EnumType, Record<string, string>> = {
+    class: classMapping,
+    format: formatMapping,
+    type: typeMapping
+  };
+
+  const mapping = mappings[type];
+  const stringValue = typeof value === 'number' ? value.toString() : value;
+  const label = Object.keys(mapping).find(key => mapping[key] === stringValue);
+
+  return label || "Desconocido";
+};
 
 export const createColumns = (openDialog: (product: Product) => void, openUpdateDialog: (product: Product) => void): ColumnDef<Product>[] => [
   {
@@ -42,29 +57,32 @@ export const createColumns = (openDialog: (product: Product) => void, openUpdate
     enableSorting: false,
     enableHiding: false,
   },
+  {
+      accessorKey: "name",
+      header: "Nombre"
+  },
+  {
+    accessorKey: "alias",
+    header: "Alias"
+  },
     {
         accessorKey: "description",
         header: "Descripcion"
-    },
-    {
-        accessorKey: "unit",
-        header: "Unidad"
-    },
-    {
-        accessorKey: "unit_x_measure_unit",
-        header: "unit_x_measure_unit"
-    },
-    {
-        accessorKey: "measure_unit_description",
-        header: "measure_unit_description"
-    },
-    {
-        accessorKey: "unit_x_max_unit",
-        header: "unit_x_max_unit"
-    },
-    {
-        accessorKey: "max_unit_description",
-        header: "max_unit_description"
+  },
+  {
+    accessorKey: "class",
+    header: "Clase",
+    cell: ({ row }) => getEnumLabel("class", row.original.class || '')
+  },
+  {
+    accessorKey: "format",
+    header: "Formato",
+    cell: ({ row }) => getEnumLabel("format", row.original.format || '')
+  },
+  {
+    accessorKey: "type",
+    header: "Tipo",
+    cell: ({ row }) => getEnumLabel("type", row.original.type || '')
   },
   {
     accessorKey: "created_at",
