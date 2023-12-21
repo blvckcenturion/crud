@@ -15,7 +15,6 @@ export default function AuthForm() {
       theme="dark"
       showLinks={false}
       providers={[]}
-      redirectTo="crm-frontend-one-sand.vercel.app/auth/callback"
     />
   )
 }

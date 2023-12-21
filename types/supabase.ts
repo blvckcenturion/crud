@@ -19,6 +19,7 @@ export interface Database {
           description: string | null
           format: number
           id: number
+          name: string
           provider_id: number | null
           type: number
           updated_at: string
@@ -31,6 +32,7 @@ export interface Database {
           description?: string | null
           format: number
           id?: number
+          name: string
           provider_id?: number | null
           type: number
           updated_at?: string
@@ -43,6 +45,7 @@ export interface Database {
           description?: string | null
           format?: number
           id?: number
+          name?: string
           provider_id?: number | null
           type?: number
           updated_at?: string
