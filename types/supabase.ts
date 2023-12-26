@@ -19,6 +19,7 @@ export interface Database {
           description: string | null
           format: number
           id: number
+          image_url: string | null
           name: string
           provider_id: number | null
           type: number
@@ -32,6 +33,7 @@ export interface Database {
           description?: string | null
           format: number
           id?: number
+          image_url?: string | null
           name: string
           provider_id?: number | null
           type: number
@@ -45,6 +47,7 @@ export interface Database {
           description?: string | null
           format?: number
           id?: number
+          image_url?: string | null
           name?: string
           provider_id?: number | null
           type?: number

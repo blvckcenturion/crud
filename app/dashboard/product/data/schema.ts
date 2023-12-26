@@ -24,7 +24,8 @@ export const ProductSchema = z.object({
     type: TypeEnum.optional().refine(val => val !== undefined, {
       message: "El tipo es obligatorio."
     }),
-    provider_id: z.number().nullable().optional(),
+  provider_id: z.number().nullable().optional(),
+  image_url: z.string().nullable().optional(),
 });
 
 // Mapping from Spanish labels to enum numbers

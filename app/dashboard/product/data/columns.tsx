@@ -15,6 +15,11 @@ import {
   } from "@/components/ui/dropdown-menu"
 import { format } from 'date-fns';
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/components/ui/avatar";
 
 type EnumType = 'class' | 'format' | 'type';
 
@@ -56,6 +61,16 @@ export const createColumns = (openDialog: (product: Product) => void, openUpdate
     ),
     enableSorting: false,
     enableHiding: false,
+  },
+  {
+    accessorKey: "image_url", // Assuming 'image_url' is the key for the image
+    header: "Imagen",
+    cell: ({ row }) => (
+      <Avatar>
+        <AvatarImage src={row.original.image_url || ''} alt={row.original.name || ''} />
+        <AvatarFallback>{(row.original.name || '').charAt(0)}</AvatarFallback>
+      </Avatar>
+    ),
   },
   {
       accessorKey: "name",
