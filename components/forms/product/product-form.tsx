@@ -98,9 +98,17 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
   // Helper functions
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && file.type.startsWith('image/')) {
       setSelectedFile(file);
       setImageURL(URL.createObjectURL(file));
+    } else {
+      // Reset the input if the file is not an image
+      // Type assertion as HTMLInputElement
+      const input = fileInputRef.current! as HTMLInputElement;
+      if (input) {
+        input.value = '';
+      }
+      toast({ variant: "destructive", title: "Tipo de archivo inválido", description: "Por favor, sube un archivo de imagen." });
     }
   };
 
