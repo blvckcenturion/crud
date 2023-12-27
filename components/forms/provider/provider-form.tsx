@@ -7,10 +7,8 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProviderType, ProviderInsertUpdateSchema } from "../../../lib/schemas/provider/schema"; // Adjust path as needed
-import { useMutation, useQuery, useQueryClient } from "react-query";
-import { supabase } from "@/lib/client/supabase";
+import { useQuery } from "react-query";
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import useSuccessErrorMutation from "@/lib/mutations";
 import { addNewProvider, updateProvider } from "@/lib/services/supabase/provider";
