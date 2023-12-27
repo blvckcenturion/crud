@@ -11,21 +11,26 @@ import {
   } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form"
-import { Product, ProductSchema, classMapping, classNumericalMapping, formatMapping, formatNumericalMapping, typeMapping, typeNumericalMapping } from "../data/schema"
+import { Product, ProductSchema, classMapping, classNumericalMapping, formatMapping, formatNumericalMapping, typeMapping, typeNumericalMapping } from "@/lib/schemas/product/schema"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation, useQueryClient } from "react-query"
+import { useQuery } from "react-query"
 import { supabase } from "@/lib/client/supabase"
 import { useToast } from "@/components/ui/use-toast"
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
 import { useRef, useState } from "react"
 import Image from "next/image"
 import { ReloadIcon } from "@radix-ui/react-icons"
+import { useRouter } from "next/navigation"
+import { addNewProduct, updateProduct } from "@/lib/services/supabase/product"
+import useSuccessErrorMutation from "@/lib/mutations"
 
 interface ProductFormProps {
   product?: Product | null; // Optional property for existing product data
@@ -42,8 +47,7 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
       id: true,
       active: true,
       created_at: true,
-      updated_at: true,
-      provider_id: true
+      updated_at: true
     })),
     mode: "onChange",
     defaultValues: product || {
@@ -53,6 +57,7 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
       class: undefined,
       format: undefined,
       type: undefined,
+      provider_id: null,
       image_url: ''
     }
   });
@@ -61,9 +66,8 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
   const [imageURL, setImageURL] = useState(product?.image_url || '');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const {toast} = useToast()
-
-  const queryClient = useQueryClient();
+  const { toast } = useToast()
+  const router = useRouter()
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -93,59 +97,28 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
     }
   }
 
-  const addProductMutation = useMutation(
-    async (newProduct: Product) => {
-      const { data, error } = await supabase
-        .from('products')
-        .insert([newProduct]);
-      if (error) throw new Error(error.message);
-      return data;
-    },
-    {
-      onSuccess: () => {
-        onOpenChange(false)
-        toast({
-          variant: "default",
-          title: "Producto agregado con éxito"
-        });
-        queryClient.invalidateQueries('products');
-      },
-      onError: (error: Error) => {
-        toast({
-          variant: "destructive",
-          title: "Error al agregar producto"
-        });
+   // For adding a new product
+  const addMutation = useSuccessErrorMutation(
+      addNewProduct,
+      'Producto',
+      'create',
+      {
+          queryKey: ['products'], // Query key for cache invalidation
+          // Additional options (if any)
       }
-    }
   );
 
-  const updateProductMutation = useMutation(
-    async (productToUpdate: Product) => {
-      const { data, error } = await supabase
-        .from('products')
-        .update(productToUpdate)
-        .match({ id: productToUpdate.id });
-      if (error) throw new Error(error.message);
-      return data;
-    },
-    {
-      onSuccess: () => {
-        onOpenChange(false); // Close the dialog/form
-        toast({
-          variant: "default",
-          title: "Producto actualizado con éxito" // Success message for update
-        });
-        queryClient.invalidateQueries('products'); // Refresh the product list
-      },
-      onError: (error: Error) => {
-        toast({
-          variant: "destructive",
-          title: "Error al actualizar el producto" // Error message for update
-        });
+  // For updating a product
+  const updateMutation = useSuccessErrorMutation(
+      updateProduct,
+      'Producto',
+      'update',
+      {
+          queryKey: ['products'], // Query key for cache invalidation
+          // Additional options (if any)
       }
-    }
   );
-  
+    
   async function onSubmit(data: any) {
     setIsLoading(true); // Start loading
     let imageURL = product?.image_url || '';
@@ -165,28 +138,44 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
       type: typeNumericalMapping[data.type] || null
     };
   
-    if (product) {
+    if (product && product.id) {
       // If updating, include the product's id
-      updateProductMutation.mutate({ ...mappedData, id: product.id });
+      updateMutation.mutate({ productData: mappedData, productId: product.id });
     } else {
       // If adding a new product
-      addProductMutation.mutate(mappedData);
+      addMutation.mutate(mappedData);
     }
     setIsLoading(false); // Stop loading after operation is completed
+    onOpenChange(false);
   }
+
+  const { data: providers, isLoading: isLoadingProviders } = useQuery("providers", async () => {
+    const { data, error } = await supabase.from("providers").select("id, name").eq("active",true);
+    if (error) throw new Error(error.message);
+    return data;
+  });
     
+
+  const handleProviderChange = (value: string) => {
+    if (value === "-1") {
+      // Logic for navigating to providers page
+      router.push("/dashboard/provider");
+    } else {
+      form.setValue("provider_id", value === "null" ? null : Number(value));
+    }
+  };
   
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="px-2 space-y-8 overflow-y-auto max-h-[80vh]">
         {/* Image Upload Field */}
         <FormItem>
-          <FormLabel>Imagen</FormLabel>
+          <FormLabel htmlFor="image">Imagen</FormLabel>
           <FormControl>
-            <Input type="file"  ref={fileInputRef} onChange={handleFileChange} />
+            <Input type="file" id="image" name="image" ref={fileInputRef} onChange={handleFileChange} />
           </FormControl>
           {imageURL && (
-            <div className="mt-4 max-w-xs mx-auto overflow-hidden rounded-lg shadow-lg">
+            <div className="mt-4 max-w-xs mx-auto overflow-hidden  shadow-lg">
               <Image
                 src={imageURL}
                 alt="Product"
@@ -205,9 +194,9 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nombre</FormLabel>
+              <FormLabel htmlFor="name">Nombre</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} id="name" name="name" autoComplete="name" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -220,14 +209,42 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
         name="alias"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Alias</FormLabel>
+            <FormLabel htmlFor="alias">Alias</FormLabel>
             <FormControl>
-            <Input {...field} value={field.value || ''} />
+            <Input {...field} id="alias" name="alias" value={field.value || ''} autoComplete="alias" />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
-      />
+        />
+        
+        {/* Provider Field */}
+        <FormField control={form.control} name="provider_id" render={({ field }) => (
+          <FormItem>
+            <FormLabel htmlFor="provider_id">Proveedor</FormLabel>
+            <FormControl>
+              <Select name="provider_id" onValueChange={handleProviderChange} value={String(field.value)} disabled={isLoadingProviders}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione un proveedor" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Proveedores Existentes</SelectLabel>
+                    {providers?.map(provider => (
+                      <SelectItem key={provider.id} value={String(provider.id)}>{provider.name}</SelectItem>
+                    ))}
+                  </SelectGroup>
+                  <SelectGroup>
+                    <SelectLabel>Mas Opciones</SelectLabel>
+                    <SelectItem value="null">Sin Proveedor</SelectItem>
+                    <SelectItem value="-1">Agregar Mas Proveedores</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
         
         {/* Description Field */}
         <FormField
@@ -235,9 +252,9 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Descripcion</FormLabel>
+              <FormLabel htmlFor="description">Descripcion</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} id="description" name="description" autoComplete="description" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -247,9 +264,9 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
         {/* Class Field */}
         <FormField control={form.control} name="class" render={({ field }) => (
           <FormItem>
-            <FormLabel>Clase</FormLabel>
+            <FormLabel htmlFor="class">Clase</FormLabel>
             <FormControl>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <Select name="class" onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccione una clase" />
                 </SelectTrigger>
@@ -268,9 +285,9 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
         {/* Format Field */}
         <FormField control={form.control} name="format" render={({ field }) => (
           <FormItem>
-            <FormLabel>Formato</FormLabel>
+            <FormLabel htmlFor="format">Formato</FormLabel>
             <FormControl>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <Select name="format" onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccione un formato" />
                 </SelectTrigger>
@@ -289,9 +306,9 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
       {/* Type Field */}
       <FormField control={form.control} name="type" render={({ field }) => (
         <FormItem>
-          <FormLabel>Tipo</FormLabel>
+          <FormLabel htmlFor="type">Tipo</FormLabel>
           <FormControl>
-            <Select onValueChange={field.onChange} value={field.value}>
+            <Select name="type" onValueChange={field.onChange} value={field.value}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleccione un tipo" />
               </SelectTrigger>

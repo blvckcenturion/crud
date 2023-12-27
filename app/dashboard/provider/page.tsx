@@ -4,13 +4,13 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { supabase } from "@/lib/client/supabase";
 import { Spinner, Stack } from "@chakra-ui/react";
-import { ProviderWithCountryType, ProviderInsertUpdateSchema } from "./data/schema";
+import { ProviderWithCountryType, ProviderInsertUpdateSchema } from "../../../lib/schemas/provider/schema";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { ProviderForm } from "./components/provider-form";
+import { ProviderForm } from "../../../components/forms/provider/provider-form";
 import { useToast } from "@/components/ui/use-toast";
-import { createProviderColumns } from "./data/columns";
+import { createProviderColumns } from "../../../lib/data/provider/columns";
 
 export default function ProviderPage() {
   const [selectedProvider, setSelectedProvider] = useState<ProviderWithCountryType | null>(null);
@@ -41,6 +41,7 @@ export default function ProviderPage() {
           *,
           country:country_id (name)
         `)
+        .eq("active", true)
         .order("id", { ascending: true });
 
       if (error) {
@@ -52,7 +53,10 @@ export default function ProviderPage() {
 
   const deleteProviderMutation = useMutation(
     async (providerId: number) => {
-      const { error } = await supabase.from('providers').delete().match({ id: providerId });
+      const { error } = await supabase
+        .from('providers')
+        .update({ active: false, updated_at: new Date().toISOString() })
+        .match({ id: providerId });
       if (error) throw new Error(error.message);
     },
     {

@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import { Product, classMapping, formatMapping, typeMapping } from "./schema"
+import { Product, ProductWithProvider, classMapping, formatMapping, typeMapping } from "../../schemas/product/schema"
 
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown, MoreHorizontal } from "lucide-react"
@@ -13,7 +13,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Avatar,
@@ -37,7 +37,7 @@ const getEnumLabel = (type: EnumType, value: string | number) => {
   return label || "Desconocido";
 };
 
-export const createColumns = (openDialog: (product: Product) => void, openUpdateDialog: (product: Product) => void): ColumnDef<Product>[] => [
+export const createColumns = (openDialog: (product: ProductWithProvider) => void, openUpdateDialog: (product: ProductWithProvider) => void): ColumnDef<ProductWithProvider>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -85,6 +85,11 @@ export const createColumns = (openDialog: (product: Product) => void, openUpdate
         header: "Descripcion"
   },
   {
+    accessorKey: "provider.name",
+    header: "Proveedor",
+    cell: ({ row }) => row.original.provider?.name || 'Sin Proveedor'
+  },
+  {
     accessorKey: "class",
     header: "Clase",
     cell: ({ row }) => getEnumLabel("class", row.original.class || '')
@@ -101,33 +106,49 @@ export const createColumns = (openDialog: (product: Product) => void, openUpdate
   },
   {
     accessorKey: "created_at",
-    header: ({ column }) => {
-      return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Fecha de Creacion
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-      )
-    },
-    cell: ({ row }) => format(new Date(row.original.created_at!), "yyyy-MM-dd HH:mm:ss")
+    header: ({ column }) => (
+      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+        Fecha de Creación
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => {
+      const dateValue = row.original.created_at;
+      if (!dateValue) {
+        return 'N/A';
+      }
+      try {
+        const parsedDate = parseISO(dateValue); // parseISO is used for parsing ISO strings
+        const formattedDate = format(parsedDate, "yyyy-MM-dd HH:mm:ss");
+        return formattedDate;
+      } catch (error) {
+        console.error("Error formatting date:", error);
+        return 'Invalid Date';
+      }
+    }
   },
   {
     accessorKey: "updated_at",
-    header: ({ column }) => {
-        return (
-            <Button
-              variant="ghost"
-              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-              Ultima Actualizacion
-              <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-      )
-    },
-    cell: ({ row }) => format(new Date(row.original.updated_at!), "yyyy-MM-dd HH:mm:ss")
+    header: ({ column }) => (
+      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+        Última Actualización
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => {
+      const dateValue = row.original.updated_at;
+      if (!dateValue) {
+        return 'N/A';
+      }
+      try {
+        const parsedDate = parseISO(dateValue); // parseISO is used for parsing ISO strings
+        const formattedDate = format(parsedDate, "yyyy-MM-dd HH:mm:ss");
+        return formattedDate;
+      } catch (error) {
+        console.error("Error formatting date:", error);
+        return 'Invalid Date';
+      }
+    }
   },
   {
     id: "actions",

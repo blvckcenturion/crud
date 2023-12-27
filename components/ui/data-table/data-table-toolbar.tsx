@@ -36,6 +36,7 @@ export function DataTableToolbar<TData>({
         {filterColumnId && (
           <>
             <Input
+              id="filter"
               placeholder={`Filtrar ${collectionName.toLowerCase()}...`}
               value={(table.getColumn(filterColumnId)?.getFilterValue() as string) ?? ""}
               onChange={(event) =>

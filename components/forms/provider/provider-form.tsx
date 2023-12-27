@@ -6,7 +6,7 @@ import { Select, SelectItem, SelectTrigger, SelectValue, SelectContent } from "@
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ProviderType, ProviderInsertUpdateSchema } from "../data/schema"; // Adjust path as needed
+import { ProviderType, ProviderInsertUpdateSchema } from "../../../lib/schemas/provider/schema"; // Adjust path as needed
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { supabase } from "@/lib/client/supabase";
 import { useState } from "react";
@@ -65,7 +65,7 @@ export function ProviderForm({ provider, onOpenChange }: ProviderFormProps) {
       setIsLoading(true); // Start loading
       const { data, error } = await supabase
         .from('providers')
-        .update(providerToUpdate)
+        .update({...providerToUpdate, updated_at: new Date().toISOString() })
         .match({ id: providerToUpdate.id });
       setIsLoading(false); // Stop loading
       if (error) throw new Error(error.message);
@@ -84,7 +84,6 @@ export function ProviderForm({ provider, onOpenChange }: ProviderFormProps) {
   );
 
   const onSubmit = async (data: ProviderType) => {
-    console.log('Form Data:', data); // Debug log
     try {
       if (provider && provider.id) {
         console.log('Updating provider:', data); // Debug log
@@ -111,9 +110,9 @@ export function ProviderForm({ provider, onOpenChange }: ProviderFormProps) {
         {/* Name Field */}
         <FormField control={form.control} name="name" render={({ field }) => (
           <FormItem>
-            <FormLabel>Nombre</FormLabel>
+            <FormLabel htmlFor="name">Nombre</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input {...field} id="name" name="name" value={field.value || ''} autoComplete="name"/>
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -122,9 +121,9 @@ export function ProviderForm({ provider, onOpenChange }: ProviderFormProps) {
         {/* Country Field */}
          <FormField control={form.control} name="country_id" render={({ field }) => (
           <FormItem>
-            <FormLabel>País</FormLabel>
+            <FormLabel htmlFor="country_id">País</FormLabel>
             <FormControl>
-              <Select onValueChange={(value) => field.onChange(Number(value))} value={String(field.value)} disabled={isLoadingCountries}>
+              <Select name="country_id" onValueChange={(value) => field.onChange(Number(value))} value={String(field.value)} disabled={isLoadingCountries}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccione un país" />
                 </SelectTrigger>

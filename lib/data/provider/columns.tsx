@@ -13,8 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { format } from 'date-fns';
-import { ProviderWithCountrySchema, ProviderWithCountryType } from "./schema"
+import { format, parseISO } from 'date-fns';
+import { ProviderWithCountrySchema, ProviderWithCountryType } from "../../schemas/provider/schema"
 import { Checkbox } from "@/components/ui/checkbox"
 
 export const createProviderColumns = (openDialog: (provider: ProviderWithCountryType) => void, openUpdateDialog: (provider: ProviderWithCountryType) => void): ColumnDef<ProviderWithCountryType>[] => [
@@ -47,34 +47,59 @@ export const createProviderColumns = (openDialog: (provider: ProviderWithCountry
     header: "Nombre"
   },
   {
-    accessorKey: "country.name", // Accessing the country name from the joined country data
-    header: "País"
+    accessorKey: "country.name",
+    header: "País",
+    cell: ({ row }) => row.original?.country?.name || "Sin País"
   },
   {
     accessorKey: "created_at",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
+      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
         Fecha de Creación
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => format(new Date(row.original.created_at), "yyyy-MM-dd HH:mm:ss")
+    cell: ({ row }) => {
+      const dateValue = row.original.created_at;
+    
+      if (!dateValue) {
+        return 'N/A';
+      }
+    
+      try {
+        const parsedDate = parseISO(dateValue); // parseISO is used for parsing ISO strings
+        const formattedDate = format(parsedDate, "yyyy-MM-dd HH:mm:ss");
+        return formattedDate;
+      } catch (error) {
+        console.error("Error formatting date:", error);
+        return 'Invalid Date';
+      }
+    }
   },
   {
     accessorKey: "updated_at",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
+      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
         Última Actualización
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => format(new Date(row.original.updated_at), "yyyy-MM-dd HH:mm:ss")
+    cell: ({ row }) => {
+      const dateValue = row.original.updated_at;
+    
+      if (!dateValue) {
+        return 'N/A';
+      }
+    
+      try {
+        const parsedDate = parseISO(dateValue); // parseISO is used for parsing ISO strings
+        const formattedDate = format(parsedDate, "yyyy-MM-dd HH:mm:ss");
+        return formattedDate;
+      } catch (error) {
+        console.error("Error formatting date:", error);
+        return 'Invalid Date';
+      }
+    }
   },
     {
         id: "actions",

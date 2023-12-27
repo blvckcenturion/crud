@@ -28,6 +28,13 @@ export const ProductSchema = z.object({
   image_url: z.string().nullable().optional(),
 });
 
+export const ProductWithProviderSchema = ProductSchema.extend({
+  provider: z.object({
+    name: z.string().optional(),
+    id: z.number().optional()
+  }).optional().nullable()
+})
+
 // Mapping from Spanish labels to enum numbers
 export const classMapping: Record<string, string> = {
     "porcelana": "porcelain",
@@ -85,3 +92,4 @@ export const typeNumericalMapping: Record<string, number> = {
 };
 
 export type Product = z.infer<typeof ProductSchema>;
+export type ProductWithProvider = z.infer<typeof ProductWithProviderSchema>
