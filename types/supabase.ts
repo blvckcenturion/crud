@@ -10,7 +10,7 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      country: {
+      countries: {
         Row: {
           created_at: string
           id: number
@@ -146,10 +146,43 @@ export interface Database {
             foreignKeyName: "providers_country_id_fkey"
             columns: ["country_id"]
             isOneToOne: false
-            referencedRelation: "country"
+            referencedRelation: "countries"
             referencedColumns: ["id"]
           }
         ]
+      }
+      storage: {
+        Row: {
+          active: boolean
+          address: string | null
+          branch: number
+          created_at: string
+          id: number
+          name: string
+          responsible: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          address?: string | null
+          branch?: number
+          created_at?: string
+          id?: number
+          name: string
+          responsible: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          address?: string | null
+          branch?: number
+          created_at?: string
+          id?: number
+          name?: string
+          responsible?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {
