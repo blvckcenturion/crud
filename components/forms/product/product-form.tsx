@@ -11,7 +11,7 @@ import {
   } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form"
-import { Product, ProductSchema, classMapping, classNumericalMapping, formatMapping, formatNumericalMapping, typeMapping, typeNumericalMapping } from "@/lib/schemas/product/schema"
+import { Product, ProductSchema, classMapping, classNumericalMapping, formatMapping, formatNumericalMapping, typeMapping, typeNumericalMapping } from "@/lib/schemas/product"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useQuery } from "react-query"
 import { supabase } from "@/lib/client/supabase"

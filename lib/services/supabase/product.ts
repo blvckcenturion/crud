@@ -2,7 +2,7 @@
 
 import { supabase } from "@/lib/client/supabase";
 import { z } from 'zod';
-import { ProductSchema, ProductWithProviderSchema, classNumericalMapping, formatNumericalMapping, typeNumericalMapping } from "@/lib/schemas/product/schema";
+import { ProductSchema, ProductWithProviderSchema, classNumericalMapping, formatNumericalMapping, typeNumericalMapping } from "@/lib/schemas/product";
 
 // Function to reverse map numerical values to enum values
 function reverseMapEnum(value: number, enumObject: Record<string, number>): string | undefined {

@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import { Product, ProductWithProvider, classMapping, formatMapping, typeMapping } from "../../schemas/product/schema"
+import { Product, ProductWithProvider, classMapping, formatMapping, typeMapping } from "../schemas/product"
 
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown, MoreHorizontal } from "lucide-react"

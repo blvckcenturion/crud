@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { format, parseISO } from 'date-fns';
-import { ProviderWithCountrySchema, ProviderWithCountryType } from "../../schemas/provider/schema"
+import { ProviderWithCountrySchema, ProviderWithCountryType } from "../schemas/provider"
 import { Checkbox } from "@/components/ui/checkbox"
 
 export const createProviderColumns = (openDialog: (provider: ProviderWithCountryType) => void, openUpdateDialog: (provider: ProviderWithCountryType) => void): ColumnDef<ProviderWithCountryType>[] => [

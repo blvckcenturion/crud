@@ -6,9 +6,9 @@ import {
   Spinner,
   Stack,
 } from "@chakra-ui/react";
-import { Product } from "@/lib/schemas/product/schema";
+import { Product } from "@/lib/schemas/product";
 import { DataTable } from "@/components/ui/data-table/data-table";
-import { createProductColumns } from "@/lib/data/product/columns";
+import { createProductColumns } from "@/lib/data/product";
 import { ProductForm } from "@/components/forms/product/product-form";
 import { deactivateProduct, fetchActiveProducts } from "@/lib/services/supabase/product";
 import useSuccessErrorMutation from "@/lib/mutations";

@@ -6,7 +6,7 @@ import { Select, SelectItem, SelectTrigger, SelectValue, SelectContent } from "@
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ProviderType, ProviderInsertUpdateSchema } from "../../../lib/schemas/provider/schema"; // Adjust path as needed
+import { ProviderType, ProviderInsertUpdateSchema } from "../../../lib/schemas/provider"; // Adjust path as needed
 import { useQuery } from "react-query";
 import { useState } from "react";
 import { ReloadIcon } from "@radix-ui/react-icons";

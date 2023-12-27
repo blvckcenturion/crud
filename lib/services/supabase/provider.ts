@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/client/supabase";
-import { ProviderType, ProvidersWithCountryArraySchema } from "@/lib/schemas/provider/schema";
+import { ProviderType, ProvidersWithCountryArraySchema } from "@/lib/schemas/provider";
 
 export const fetchActiveProviders = async () => {
     try {
