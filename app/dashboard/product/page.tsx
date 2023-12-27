@@ -9,17 +9,11 @@ import {
 import { Product } from "@/lib/schemas/product/schema";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { createProductColumns } from "@/lib/data/product/columns";
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription
-} from "@/components/ui/dialog";
 import { ProductForm } from "@/components/forms/product/product-form";
 import { deactivateProduct, fetchActiveProducts } from "@/lib/services/supabase/product";
 import useSuccessErrorMutation from "@/lib/mutations";
+import AlertDialogComponent from "@/components/dialog/alert-dialog";
+import UpdateFormDialogComponent from "@/components/dialog/update-dialog";
 
 export default function ProductPage() { 
   // State
@@ -42,7 +36,8 @@ export default function ProductPage() {
 
   // Queries
   const { data, isLoading, isError } = useQuery('products', fetchActiveProducts);
-
+  
+  // Mutations
   const deleteMutation = useSuccessErrorMutation(
     deactivateProduct,
     'Producto',
@@ -74,33 +69,16 @@ export default function ProductPage() {
           isFormOpen={isFormOpen}
         />
       )}
-      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Esta acción no se puede deshacer. Esto eliminará permanentemente el producto de nuestros servidores.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setIsDialogOpen(false)}>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={() => deleteMutation.mutate(selectedProduct?.id ?? 0)}>
-            Continuar
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-      </AlertDialog>
-      <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
-      <DialogContent className="w-full sm:w-1/2 sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Editar Producto</DialogTitle>
-          <DialogDescription>
-            Aquí puedes editar la información del producto. Haz clic en guardar cuando hayas terminado.
-          </DialogDescription>
-        </DialogHeader>
-        <ProductForm product={selectedProduct} onOpenChange={() => setIsUpdateDialogOpen(false)} />
-      </DialogContent>
-    </Dialog>
+      <AlertDialogComponent
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onConfirm={() => deleteMutation.mutate(selectedProduct?.id ?? 0)} />
+      <UpdateFormDialogComponent
+        isOpen={isUpdateDialogOpen}
+        onOpenChange={setIsUpdateDialogOpen}
+        title={"Editar Producto"}
+        description={"Aquí puedes editar la información del producto. Haz clic en guardar cuando hayas terminado."}
+        formComponent={<ProductForm product={selectedProduct} onOpenChange={() => setIsUpdateDialogOpen(false)} />}/>
     </div>
   );
 }

@@ -38,10 +38,6 @@ interface ProductFormProps {
   onOpenChange: (isOpen: boolean) => void;
 }
 
-function getKeyByValue(object: Record<string, string>, value: string): string | undefined {
-  return Object.keys(object).find(key => object[key] === value);
-}
-
 export function ProductForm({ product, onOpenChange }: ProductFormProps) {
   // State
   const fileInputRef = useRef(null);

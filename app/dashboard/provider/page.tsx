@@ -5,12 +5,12 @@ import { useQuery } from "react-query";
 import { Spinner, Stack } from "@chakra-ui/react";
 import { ProviderWithCountryType } from "@/lib/schemas/provider/schema";
 import { DataTable } from "@/components/ui/data-table/data-table";
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ProviderForm } from "@/components/forms/provider/provider-form";
 import { createProviderColumns } from "@/lib/data/provider/columns";
 import { deactivateProvider, fetchActiveProviders } from "@/lib/services/supabase/provider";
+import AlertDialogComponent from "@/components/dialog/alert-dialog";
 import useSuccessErrorMutation from "@/lib/mutations";
+import UpdateFormDialogComponent from "@/components/dialog/update-dialog";
 
 export default function ProviderPage() {
   // State
@@ -32,7 +32,9 @@ export default function ProviderPage() {
   );
 
   // Queries
-  const {data, isLoading, isError} = useQuery('providers', fetchActiveProviders)
+  const { data, isLoading, isError } = useQuery('providers', fetchActiveProviders)
+  
+  // Mutations
   const deleteMutation = useSuccessErrorMutation(
     deactivateProvider,
     'Proveedor',
@@ -64,33 +66,17 @@ export default function ProviderPage() {
           isFormOpen={isFormOpen}
         />
       )}
-      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción no se puede deshacer. Esto eliminará permanentemente el proveedor de nuestros servidores.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setIsDialogOpen(false)}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteMutation.mutate(selectedProvider?.id ?? 0)}>
-              Continuar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
-        <DialogContent className="w-full sm:w-1/2 sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Editar Proveedor</DialogTitle>
-            <DialogDescription>
-              Aquí puedes editar la información del proveedor. Haz clic en guardar cuando hayas terminado.
-            </DialogDescription>
-          </DialogHeader>
-          <ProviderForm provider={selectedProvider} onOpenChange={() => setIsUpdateDialogOpen(false)} />
-        </DialogContent>
-      </Dialog>
+      <AlertDialogComponent
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onConfirm={() => deleteMutation.mutate(selectedProvider?.id ?? 0)}
+      />
+      <UpdateFormDialogComponent
+        isOpen={isUpdateDialogOpen}
+        onOpenChange={setIsUpdateDialogOpen}
+        title={"Editar Proveedor"}
+        description={"Aquí puedes editar la información del proveedor. Haz clic en guardar cuando hayas terminado."}
+        formComponent={<ProviderForm provider={selectedProvider} onOpenChange={() => setIsUpdateDialogOpen(false)} />}/>
     </div>
   );
 }
