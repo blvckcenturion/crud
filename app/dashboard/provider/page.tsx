@@ -5,7 +5,7 @@ import { useQuery } from "react-query";
 import { Spinner, Stack } from "@chakra-ui/react";
 import { ProviderWithCountryType } from "@/lib/schemas/provider";
 import { DataTable } from "@/components/ui/data-table/data-table";
-import { ProviderForm } from "@/components/forms/provider/provider-form";
+import { ProviderForm } from "@/components/forms/provider-form";
 import { createProviderColumns } from "@/lib/data/provider";
 import { deactivateProvider, fetchActiveProviders } from "@/lib/services/supabase/provider";
 import AlertDialogComponent from "@/components/dialog/alert-dialog";

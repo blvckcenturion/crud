@@ -9,7 +9,7 @@ import {
 import { Product } from "@/lib/schemas/product";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { createProductColumns } from "@/lib/data/product";
-import { ProductForm } from "@/components/forms/product/product-form";
+import { ProductForm } from "@/components/forms/product-form";
 import { deactivateProduct, fetchActiveProducts } from "@/lib/services/supabase/product";
 import useSuccessErrorMutation from "@/lib/mutations";
 import AlertDialogComponent from "@/components/dialog/alert-dialog";
