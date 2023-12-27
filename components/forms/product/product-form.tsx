@@ -121,30 +121,33 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
     
   async function onSubmit(data: any) {
     setIsLoading(true); // Start loading
-    let imageURL = product?.image_url || '';
-
+  
+    // If there's a new selected file, upload it and get the URL
+    let uploadedURL: string | null = '';
     if (selectedFile) {
-      const uploadedURL = await uploadImage(selectedFile);
-      if (uploadedURL) {
-        imageURL = uploadedURL;
-      }
+      uploadedURL = await uploadImage(selectedFile);
     }
-
+  
+    // Determine the image URL to save based on the presence of a new file or deletion
+    let imageURLToSave = uploadedURL || (imageURL !== product?.image_url ? null : imageURL);
+  
     const mappedData = {
       ...data,
-      image_url: imageURL,
+      image_url: imageURLToSave, // Use the determined image URL here
       class: classNumericalMapping[data.class] || null,
       format: formatNumericalMapping[data.format] || null,
       type: typeNumericalMapping[data.type] || null
     };
   
+    // Check if we're updating an existing product
     if (product && product.id) {
-      // If updating, include the product's id
+      // If updating, include the product's id and check for image deletion
       updateMutation.mutate({ productData: mappedData, productId: product.id });
     } else {
-      // If adding a new product
+      // If adding a new product, just use the mapped data
       addMutation.mutate(mappedData);
     }
+  
     setIsLoading(false); // Stop loading after operation is completed
     onOpenChange(false);
   }
@@ -163,6 +166,18 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
     } else {
       form.setValue("provider_id", value === "null" ? null : Number(value));
     }
+  };
+
+  // Add a function to handle image deletion
+  const handleDeleteImage = () => {
+    // If there's a file selected, revoke the object URL to avoid memory leaks
+    if (selectedFile) {
+      URL.revokeObjectURL(imageURL);
+    }
+    setImageURL('');
+    setSelectedFile(null);
+    // If you need to update the product to remove the image, you can do it here
+    // For example, if you have a database field to clear, invoke the mutation here
   };
   
   return (
@@ -185,6 +200,11 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
                 className="object-cover object-center"
               />
             </div>
+          )}
+          {imageURL && (
+            <Button onClick={handleDeleteImage}>
+              Eliminar Imagen
+            </Button>
           )}
         </FormItem>
 
