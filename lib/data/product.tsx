@@ -10,7 +10,6 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
 import { format, parseISO } from 'date-fns';
@@ -165,12 +164,6 @@ export const createProductColumns = (openDialog: (product: ProductWithProvider) 
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => console.log('copiar')}
-              >
-                Copiar
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => openUpdateDialog(row.original)}>Editar</DropdownMenuItem>
               <DropdownMenuItem onClick={() => openDialog(row.original)}>Eliminar</DropdownMenuItem>
             </DropdownMenuContent>
