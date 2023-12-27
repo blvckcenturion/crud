@@ -12,6 +12,9 @@ import { supabase } from "@/lib/client/supabase";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import useSuccessErrorMutation from "@/lib/mutations";
+import { addNewProvider, updateProvider } from "@/lib/services/supabase/provider";
+import { fetchCountries } from "@/lib/services/supabase/country";
 
 interface ProviderFormProps {
   provider?: ProviderType | null;
@@ -19,14 +22,10 @@ interface ProviderFormProps {
 }
 
 export function ProviderForm({ provider, onOpenChange }: ProviderFormProps) {
-  // state
+  // State
   const [isLoading, setIsLoading] = useState(false);
 
-  // clients
-  const {toast} = useToast();
-  const queryClient = useQueryClient();
-
-  // form
+  // Form
   const form = useForm({
     resolver: zodResolver(ProviderInsertUpdateSchema.omit({
       id: true,
@@ -42,74 +41,41 @@ export function ProviderForm({ provider, onOpenChange }: ProviderFormProps) {
   });
 
   // Mutations
-
-  // Mutation for adding a new provider
-  const addProviderMutation = useMutation(
-    async (newProvider: ProviderType) => {
-      setIsLoading(true); // Start loading
-      const { data, error } = await supabase
-        .from('providers')
-        .insert([newProvider]);
-      setIsLoading(false); // Stop loading
-      if (error) throw new Error(error.message);
-      return data;
-    },
+  const addMutation = useSuccessErrorMutation(
+    addNewProvider,
+    'Proveedor',
+    'create',
     {
-      onSuccess: () => {
-        onOpenChange(false); // Close the form on success
-        toast({ variant: "default", title: "Proveedor agregado con éxito" });
-        queryClient.invalidateQueries('providers');
-      },
-      onError: (error: Error) => {
-        toast({ variant: "destructive", title: "Error al agregar proveedor" });
-      }
+      queryKey: ['providers']
     }
-  );
-
-  // Mutation for updating an existing provider
-  const updateProviderMutation = useMutation(
-    async (providerToUpdate: ProviderType) => {
-      setIsLoading(true); // Start loading
-      const { data, error } = await supabase
-        .from('providers')
-        .update({...providerToUpdate, updated_at: new Date().toISOString() })
-        .match({ id: providerToUpdate.id });
-      setIsLoading(false); // Stop loading
-      if (error) throw new Error(error.message);
-      return data;
-    },
+  )
+  const updateMutation = useSuccessErrorMutation(
+    updateProvider,
+    'Proveedor',
+    'update',
     {
-      onSuccess: () => {
-        onOpenChange(false); // Close the form on success
-        toast({ variant: "default", title: "Proveedor actualizado con éxito" });
-        queryClient.invalidateQueries('providers');
-      },
-      onError: (error: Error) => {
-        toast({ variant: "destructive", title: "Error al actualizar proveedor" });
-      }
+      queryKey: ['providers']
     }
-  );
+  )
 
+  //Queries
+  const { data: countries, isLoading: isLoadingCountries } = useQuery("countries", fetchCountries);
+
+  // Helper functions
   const onSubmit = async (data: ProviderType) => {
     try {
+      setIsLoading(true)
       if (provider && provider.id) {
-        console.log('Updating provider:', data); // Debug log
-        updateProviderMutation.mutate({ ...data, id: provider.id });
+        updateMutation.mutate({ ...data, id: provider.id });
       } else {
-        console.log('Adding new provider:', data); // Debug log
-        addProviderMutation.mutate(data);
+        addMutation.mutate(data);
       }
+      setIsLoading(false);
+      onOpenChange(false);
     } catch (error) {
       console.error('Error in form submission:', error);
     }
   };
-
-
-  const { data: countries, isLoading: isLoadingCountries } = useQuery("countries", async () => {
-    const { data, error } = await supabase.from("countries").select("id, name");
-    if (error) throw new Error(error.message);
-    return data;
-  });
 
   return (
     <Form {...form}>

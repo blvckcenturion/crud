@@ -1,6 +1,5 @@
 import { supabase } from "@/lib/client/supabase";
-import { ProvidersWithCountryArraySchema } from "@/lib/schemas/provider/schema";
-import { z } from "zod";
+import { ProviderType, ProvidersWithCountryArraySchema } from "@/lib/schemas/provider/schema";
 
 export const fetchActiveProviders = async () => {
     try {
@@ -37,4 +36,37 @@ export const deactivateProvider = async (providerId: number) => {
       console.error("Error deactivating provider:", error);
       throw error;
     }
-  };
+};
+
+// Function to add a new provider
+export const addNewProvider = async (newProvider: ProviderType) => {
+    try {
+      const { data, error } = await supabase
+        .from('providers')
+        .insert([newProvider]);
+  
+      if (error) throw error;
+  
+      return data;
+    } catch (error) {
+      console.error("Error adding new provider:", error);
+      throw error;
+    }
+};
+  
+// Function to update an existing provider
+export const updateProvider = async (providerToUpdate: ProviderType) => {
+    try {
+        const { data, error } = await supabase
+        .from('providers')
+        .update({ ...providerToUpdate, updated_at: new Date().toISOString() })
+        .match({ id: providerToUpdate.id });
+
+        if (error) throw error;
+
+        return data;
+    } catch (error) {
+        console.error("Error updating provider:", error);
+        throw error;
+    }
+};

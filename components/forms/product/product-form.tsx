@@ -31,6 +31,7 @@ import { ReloadIcon } from "@radix-ui/react-icons"
 import { useRouter } from "next/navigation"
 import { addNewProduct, updateProduct } from "@/lib/services/supabase/product"
 import useSuccessErrorMutation from "@/lib/mutations"
+import { fetchActiveProviders } from "@/lib/services/supabase/provider"
 
 interface ProductFormProps {
   product?: Product | null; // Optional property for existing product data
@@ -42,6 +43,17 @@ function getKeyByValue(object: Record<string, string>, value: string): string | 
 }
 
 export function ProductForm({ product, onOpenChange }: ProductFormProps) {
+  // State
+  const fileInputRef = useRef(null);
+  const [imageURL, setImageURL] = useState(product?.image_url || '');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Clients
+  const { toast } = useToast()
+  const router = useRouter()
+
+  // Form
   const form = useForm({
     resolver: zodResolver(ProductSchema.omit({
       id: true,
@@ -61,19 +73,34 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
       image_url: ''
     }
   });
-  
-  const fileInputRef = useRef(null);
-  const [imageURL, setImageURL] = useState(product?.image_url || '');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast()
-  const router = useRouter()
 
+  // Mutations
+  const addMutation = useSuccessErrorMutation(
+    addNewProduct,
+    'Producto',
+    'create',
+    {
+      queryKey: ['products'], // Query key for cache invalidation
+    }
+  );
+  const updateMutation = useSuccessErrorMutation(
+    updateProduct,
+    'Producto',
+    'update',
+    {
+      queryKey: ['products'], // Query key for cache invalidation
+    }
+  );
+
+  // Queries
+  const { data: providers, isLoading: isLoadingProviders } = useQuery("providers", fetchActiveProviders);
+  
+  // Helper functions
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      setImageURL(URL.createObjectURL(file)); // Immediate preview URL
+      setImageURL(URL.createObjectURL(file));
     }
   };
 
@@ -96,68 +123,43 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
       return null;
     }
   }
-
-   // For adding a new product
-  const addMutation = useSuccessErrorMutation(
-      addNewProduct,
-      'Producto',
-      'create',
-      {
-          queryKey: ['products'], // Query key for cache invalidation
-          // Additional options (if any)
-      }
-  );
-
-  // For updating a product
-  const updateMutation = useSuccessErrorMutation(
-      updateProduct,
-      'Producto',
-      'update',
-      {
-          queryKey: ['products'], // Query key for cache invalidation
-          // Additional options (if any)
-      }
-  );
     
   async function onSubmit(data: any) {
-    setIsLoading(true); // Start loading
+    try {
+      setIsLoading(true); // Start loading
   
-    // If there's a new selected file, upload it and get the URL
-    let uploadedURL: string | null = '';
-    if (selectedFile) {
-      uploadedURL = await uploadImage(selectedFile);
+      // If there's a new selected file, upload it and get the URL
+      let uploadedURL: string | null = '';
+      if (selectedFile) {
+        uploadedURL = await uploadImage(selectedFile);
+      }
+  
+      // Determine the image URL to save based on the presence of a new file or deletion
+      let imageURLToSave = uploadedURL || (imageURL !== product?.image_url ? null : imageURL);
+  
+      const mappedData = {
+        ...data,
+        image_url: imageURLToSave, // Use the determined image URL here
+        class: classNumericalMapping[data.class] || null,
+        format: formatNumericalMapping[data.format] || null,
+        type: typeNumericalMapping[data.type] || null
+      };
+  
+      // Check if we're updating an existing product
+      if (product && product.id) {
+        // If updating, include the product's id and check for image deletion
+        updateMutation.mutate({ productData: mappedData, productId: product.id });
+      } else {
+        // If adding a new product, just use the mapped data
+        addMutation.mutate(mappedData);
+      }
+  
+      setIsLoading(false);
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error in onSubmit function:", error);
     }
-  
-    // Determine the image URL to save based on the presence of a new file or deletion
-    let imageURLToSave = uploadedURL || (imageURL !== product?.image_url ? null : imageURL);
-  
-    const mappedData = {
-      ...data,
-      image_url: imageURLToSave, // Use the determined image URL here
-      class: classNumericalMapping[data.class] || null,
-      format: formatNumericalMapping[data.format] || null,
-      type: typeNumericalMapping[data.type] || null
-    };
-  
-    // Check if we're updating an existing product
-    if (product && product.id) {
-      // If updating, include the product's id and check for image deletion
-      updateMutation.mutate({ productData: mappedData, productId: product.id });
-    } else {
-      // If adding a new product, just use the mapped data
-      addMutation.mutate(mappedData);
-    }
-  
-    setIsLoading(false); // Stop loading after operation is completed
-    onOpenChange(false);
   }
-
-  const { data: providers, isLoading: isLoadingProviders } = useQuery("providers", async () => {
-    const { data, error } = await supabase.from("providers").select("id, name").eq("active",true);
-    if (error) throw new Error(error.message);
-    return data;
-  });
-    
 
   const handleProviderChange = (value: string) => {
     if (value === "-1") {
