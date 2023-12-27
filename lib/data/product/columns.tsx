@@ -37,7 +37,7 @@ const getEnumLabel = (type: EnumType, value: string | number) => {
   return label || "Desconocido";
 };
 
-export const createColumns = (openDialog: (product: ProductWithProvider) => void, openUpdateDialog: (product: ProductWithProvider) => void): ColumnDef<ProductWithProvider>[] => [
+export const createProductColumns = (openDialog: (product: ProductWithProvider) => void, openUpdateDialog: (product: ProductWithProvider) => void): ColumnDef<ProductWithProvider>[] => [
   {
     id: "select",
     header: ({ table }) => (

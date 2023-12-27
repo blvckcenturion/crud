@@ -19,6 +19,14 @@ interface ProviderFormProps {
 }
 
 export function ProviderForm({ provider, onOpenChange }: ProviderFormProps) {
+  // state
+  const [isLoading, setIsLoading] = useState(false);
+
+  // clients
+  const {toast} = useToast();
+  const queryClient = useQueryClient();
+
+  // form
   const form = useForm({
     resolver: zodResolver(ProviderInsertUpdateSchema.omit({
       id: true,
@@ -32,9 +40,8 @@ export function ProviderForm({ provider, onOpenChange }: ProviderFormProps) {
       country_id: 1
     }
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const {toast} = useToast();
-  const queryClient = useQueryClient();
+
+  // Mutations
 
   // Mutation for adding a new provider
   const addProviderMutation = useMutation(

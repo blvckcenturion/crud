@@ -6,9 +6,9 @@ import {
   Spinner,
   Stack,
 } from "@chakra-ui/react";
-import { Product } from "../../../lib/schemas/product/schema";
+import { Product } from "@/lib/schemas/product/schema";
 import { DataTable } from "@/components/ui/data-table/data-table";
-import { createColumns } from "../../../lib/data/product/columns";
+import { createProductColumns } from "@/lib/data/product/columns";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import {
   Dialog,
@@ -16,41 +16,32 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription
-} from "@/components/ui/dialog"; // Adjust the import paths according to your project
+} from "@/components/ui/dialog";
 import { ProductForm } from "@/components/forms/product/product-form";
 import { deactivateProduct, fetchActiveProducts } from "@/lib/services/supabase/product";
 import useSuccessErrorMutation from "@/lib/mutations";
 
 export default function ProductPage() { 
+  // State
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
-  const [updateProduct, setUpdateProduct] = useState<Product | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-
-  const openDialog = (product: Product) => {
-    setSelectedProduct(product);
-    setIsDialogOpen(true);
-  };
-
-  const closeDialog = () => {
-    setIsDialogOpen(false);
-    setSelectedProduct(null);
-  };
-
-  const openUpdateDialog = (product: Product) => {
-    setUpdateProduct(product);
-    setIsUpdateDialogOpen(true);
-  };
-
-  const closeUpdateDialog = () => {
-    setIsUpdateDialogOpen(false);
-    setUpdateProduct(null);
-  };
   
-  const columns = createColumns(openDialog, openUpdateDialog);
+  // Columns creation
+  const columns = createProductColumns(
+    (product) => {
+      setSelectedProduct(product); // Set the product to be deleted
+      setIsDialogOpen(true); // Open the product confirmation dialog
+    },
+    (product) => {
+      setSelectedProduct(product);  // Set the provider to be updated
+      setIsUpdateDialogOpen(true); // Open the update dialog
+    }
+  )
 
-  const { data, isLoading } = useQuery('products', fetchActiveProducts);
+  // Queries
+  const { data, isLoading, isError } = useQuery('products', fetchActiveProducts);
 
   const deleteMutation = useSuccessErrorMutation(
     deactivateProduct,
@@ -70,16 +61,18 @@ export default function ProductPage() {
         <Stack>
           <Spinner size="xl" />
         </Stack>
-      ): (
-          <DataTable
-            data={data ?? []}
-            columns={columns}
-            filterColumnId="description"
-            collectionName="producto"
-            formComponent={<ProductForm onOpenChange={setIsFormOpen} />}
-            onFormOpenChange={setIsFormOpen}
-            isFormOpen={isFormOpen}
-          />
+      ) : isError ? (
+        <p>Error cargando productos</p>
+      ) : (
+        <DataTable
+          data={data ?? []}
+          columns={columns}
+          filterColumnId="name"
+          collectionName="producto"
+          formComponent={<ProductForm onOpenChange={setIsFormOpen} />}
+          onFormOpenChange={setIsFormOpen}
+          isFormOpen={isFormOpen}
+        />
       )}
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <AlertDialogContent>
@@ -90,7 +83,7 @@ export default function ProductPage() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={closeDialog}>Cancelar</AlertDialogCancel>
+          <AlertDialogCancel onClick={() => setIsDialogOpen(false)}>Cancelar</AlertDialogCancel>
           <AlertDialogAction onClick={() => deleteMutation.mutate(selectedProduct?.id ?? 0)}>
             Continuar
           </AlertDialogAction>
@@ -105,7 +98,7 @@ export default function ProductPage() {
             Aquí puedes editar la información del producto. Haz clic en guardar cuando hayas terminado.
           </DialogDescription>
         </DialogHeader>
-        <ProductForm product={updateProduct} onOpenChange={closeUpdateDialog} />
+        <ProductForm product={selectedProduct} onOpenChange={() => setIsUpdateDialogOpen(false)} />
       </DialogContent>
     </Dialog>
     </div>

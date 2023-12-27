@@ -176,8 +176,6 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
     }
     setImageURL('');
     setSelectedFile(null);
-    // If you need to update the product to remove the image, you can do it here
-    // For example, if you have a database field to clear, invoke the mutation here
   };
   
   return (

@@ -1,25 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "react-query";
-import { supabase } from "@/lib/client/supabase";
+import { useQuery } from "react-query";
 import { Spinner, Stack } from "@chakra-ui/react";
-import { ProviderWithCountryType, ProviderInsertUpdateSchema } from "../../../lib/schemas/provider/schema";
+import { ProviderWithCountryType } from "@/lib/schemas/provider/schema";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { ProviderForm } from "../../../components/forms/provider/provider-form";
-import { useToast } from "@/components/ui/use-toast";
-import { createProviderColumns } from "../../../lib/data/provider/columns";
+import { ProviderForm } from "@/components/forms/provider/provider-form";
+import { createProviderColumns } from "@/lib/data/provider/columns";
+import { deactivateProvider, fetchActiveProviders } from "@/lib/services/supabase/provider";
+import useSuccessErrorMutation from "@/lib/mutations";
 
 export default function ProviderPage() {
+  // State
   const [selectedProvider, setSelectedProvider] = useState<ProviderWithCountryType | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
 
+  // Columns creation 
   const columns = createProviderColumns(
     (provider) => {
       setSelectedProvider(provider); // Set the provider to be deleted
@@ -29,53 +29,18 @@ export default function ProviderPage() {
       setSelectedProvider(provider); // Set the provider to be updated
       setIsUpdateDialogOpen(true); // Open the update dialog
     }
-    
   );
 
-  const { data, isLoading, isError } = useQuery(
-    "providers",
-    async () => {
-      const { data, error } = await supabase
-        .from("providers")
-        .select(`
-          *,
-          country:country_id (name)
-        `)
-        .eq("active", true)
-        .order("id", { ascending: true });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-      return data;
-    }
-  );
-
-  const deleteProviderMutation = useMutation(
-    async (providerId: number) => {
-      const { error } = await supabase
-        .from('providers')
-        .update({ active: false, updated_at: new Date().toISOString() })
-        .match({ id: providerId });
-      if (error) throw new Error(error.message);
-    },
+  // Queries
+  const {data, isLoading, isError} = useQuery('providers', fetchActiveProviders)
+  const deleteMutation = useSuccessErrorMutation(
+    deactivateProvider,
+    'Proveedor',
+    'delete',
     {
-      onSuccess: () => {
-        toast({
-          variant: "default",
-          title: "Proveedor eliminado con éxito"
-        });
-        queryClient.invalidateQueries('providers');
-        setIsDialogOpen(false);
-      },
-      onError: (error: Error) => {
-        toast({
-          variant: "destructive",
-          title: "Error al eliminar proveedor"
-        });
-      }
+      queryKey: ['providers']
     }
-  );
+  )
 
   return (
     <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
@@ -87,7 +52,7 @@ export default function ProviderPage() {
           <Spinner size="xl" />
         </Stack>
       ) : isError ? (
-        <p>Error loading providers</p>
+        <p>Error cargando proveedores</p>
       ) : (
         <DataTable
           data={data ?? []}
@@ -109,7 +74,7 @@ export default function ProviderPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setIsDialogOpen(false)}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteProviderMutation.mutate(selectedProvider?.id ?? 0)}>
+            <AlertDialogAction onClick={() => deleteMutation.mutate(selectedProvider?.id ?? 0)}>
               Continuar
             </AlertDialogAction>
           </AlertDialogFooter>
