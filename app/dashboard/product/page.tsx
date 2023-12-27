@@ -2,20 +2,13 @@
 
 import { supabase } from "@/lib/client/supabase";
 import { useState } from "react";
-import { QueryClient, useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
   Spinner,
   Stack,
-  ListItem,
-  OrderedList,
-  ListIcon,
-  HStack,
-  VStack,
-  Flex,
-  Text,
 } from "@chakra-ui/react";
 import { z } from "zod";
-import { ClassEnum, Product, ProductSchema, classMapping, classNumericalMapping, formatMapping, formatNumericalMapping, typeMapping, typeNumericalMapping } from "./data/schema";
+import { Product, ProductSchema, classNumericalMapping, formatNumericalMapping, typeNumericalMapping } from "./data/schema";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { createColumns } from "./data/columns";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
@@ -26,7 +19,7 @@ import {
   DialogTitle,
   DialogDescription
 } from "@/components/ui/dialog"; // Adjust the import paths according to your project
-import { ProductForm } from "./product-form";
+import { ProductForm } from "./components/product-form";
 import { useToast } from "@/components/ui/use-toast";
 
 
@@ -51,7 +44,8 @@ export default function ProductPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [updateProduct, setUpdateProduct] = useState<Product | null>(null);
-  
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
   const openDialog = (product: Product) => {
     setSelectedProduct(product);
     setIsDialogOpen(true);
@@ -132,7 +126,15 @@ export default function ProductPage() {
           <Spinner size="xl" />
         </Stack>
       ): (
-          <DataTable data={data ?? []} columns={columns}/>
+          <DataTable
+            data={data ?? []}
+            columns={columns}
+            filterColumnId="description"
+            collectionName="producto"
+            formComponent={<ProductForm onOpenChange={setIsFormOpen} />}
+            onFormOpenChange={setIsFormOpen}
+            isFormOpen={isFormOpen}
+          />
       )}
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <AlertDialogContent>

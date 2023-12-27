@@ -20,7 +20,7 @@ export function Sidebar() {
   };
 
   return (
-    <div className={cn("pb-12", "hidden lg:block w-[208px] h-[calc(100vh-50px)] overflow-y-auto")}>
+    <div className={cn("pb-12", "hidden lg:block w-[208px] overflow-hidden")}>
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">Módulos</h2>
@@ -44,7 +44,8 @@ export function Sidebar() {
             {/* Proveedores Button */}
             <Button 
               variant={isActive('/dashboard/proveedores') ? "secondary" : "ghost"} 
-              className="w-full justify-start">
+              className="w-full justify-start"
+              onClick={() => router.push('/dashboard/provider')}>
               <Truck className="mr-2 h-4 w-4" />
               Proveedores
             </Button>

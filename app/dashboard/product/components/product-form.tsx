@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -12,8 +11,7 @@ import {
   } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Product, ProductSchema, classMapping, classNumericalMapping, formatMapping, formatNumericalMapping, typeMapping, typeNumericalMapping } from "./data/schema"
+import { Product, ProductSchema, classMapping, classNumericalMapping, formatMapping, formatNumericalMapping, typeMapping, typeNumericalMapping } from "../data/schema"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "react-query"
 import { supabase } from "@/lib/client/supabase"
@@ -27,7 +25,6 @@ import {
 } from "@/components/ui/select"
 import { useRef, useState } from "react"
 import Image from "next/image"
-import { ImageModal } from "@/components/ui/image-modal"
 import { ReloadIcon } from "@radix-ui/react-icons"
 
 interface ProductFormProps {
