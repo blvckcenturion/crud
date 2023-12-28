@@ -10,7 +10,8 @@ export const fetchActivePurchasesWithItems = async (): Promise<PurchaseWithItems
           *,
           purchase_items (
             *,
-            active.eq.true
+            active.eq.true,
+            product:products (name)
           )
         `)
         .eq("active", true)
