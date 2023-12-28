@@ -1,9 +1,10 @@
 // storageService.ts
 import { supabase } from "@/lib/client/supabase";
 import { z } from 'zod';
-import { StorageRowSchema, StorageInsertSchema, StorageUpdateSchema } from "@/lib/schemas/storage";
+import { StorageRowSchema, StorageInsertSchema, StorageUpdateSchema, branchReverseMapping } from "@/lib/schemas/storage";
 
 // Function to fetch active storage locations
+
 export const fetchActiveStorage = async () => {
   try {
     const { data, error } = await supabase
@@ -14,7 +15,13 @@ export const fetchActiveStorage = async () => {
 
     if (error) throw error;
 
-    return StorageRowSchema.array().parse(data);
+    // Transform numerical branch values to string values
+    const transformedData = data.map(item => ({
+      ...item,
+      branch: branchReverseMapping[item.branch as number] // Assumes branch is a number
+    }));
+
+    return StorageRowSchema.array().parse(transformedData);
   } catch (error) {
     console.error("Error fetching storage locations:", error);
     throw error;

@@ -8,24 +8,24 @@ export const FormatEnum = z.enum([
 export const TypeEnum = z.enum(['vitrified', 'satin', 'polished', 'rustic']);
 
 export const ProductSchema = z.object({
-    id: z.number().optional(),
-    active: z.boolean().default(true),
-    created_at: z.string().optional(),
-    updated_at: z.string().optional(),
-    name: z.string().min(1, "El nombre es obligatorio."),
-    description: z.string().optional(),
-    alias: z.string().nullable().optional(),
-    class: ClassEnum.optional().refine(val => val !== undefined, {
-      message: "La clase es obligatoria."
-    }),
-    format: FormatEnum.optional().refine(val => val !== undefined, {
-      message: "El formato es obligatorio."
-    }),
-    type: TypeEnum.optional().refine(val => val !== undefined, {
-      message: "El tipo es obligatorio."
-    }),
+  id: z.number().optional(),
+  active: z.boolean().default(true),
+  created_at: z.string().optional(),
+  updated_at: z.string().optional(),
+  name: z.string().trim().min(1, "El nombre es obligatorio."),
+  description: z.string().trim().optional(),
+  alias: z.string().trim().nullable().optional(),
+  class: ClassEnum.optional().refine(val => val !== undefined, {
+    message: "La clase es obligatoria."
+  }),
+  format: FormatEnum.optional().refine(val => val !== undefined, {
+    message: "El formato es obligatorio."
+  }),
+  type: TypeEnum.optional().refine(val => val !== undefined, {
+    message: "El tipo es obligatorio."
+  }),
   provider_id: z.number().nullable().optional(),
-  image_url: z.string().nullable().optional(),
+  image_url: z.string().trim().nullable().optional(),
 });
 
 export const ProductWithProviderSchema = ProductSchema.extend({

@@ -130,7 +130,7 @@ export interface Database {
           country_id: number
           created_at?: string
           id?: number
-          name: string
+          name?: string
           updated_at?: string
         }
         Update: {
@@ -147,6 +147,86 @@ export interface Database {
             columns: ["country_id"]
             isOneToOne: false
             referencedRelation: "countries"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      purchase_items: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: number
+          product_id: number
+          purchase_id: number
+          qty: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: number
+          product_id: number
+          purchase_id: number
+          qty: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: number
+          product_id?: number
+          purchase_id?: number
+          qty?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_items_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      purchases: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: number
+          storage_id: number
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          active: boolean
+          created_at?: string
+          id?: number
+          storage_id: number
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: number
+          storage_id?: number
+          updated_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchases_storage_id_fkey"
+            columns: ["storage_id"]
+            isOneToOne: false
+            referencedRelation: "storage"
             referencedColumns: ["id"]
           }
         ]

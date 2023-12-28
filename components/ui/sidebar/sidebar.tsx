@@ -49,6 +49,15 @@ export function Sidebar() {
               <Truck className="mr-2 h-4 w-4" />
               Proveedores
             </Button>
+            {/* Almacenes Button */}
+            <Button 
+              variant={isActive('/dashboard/storage') ? "secondary" : "ghost"} 
+              className="w-full justify-start"
+              onClick={() => router.push('/dashboard/storage')}>
+              <Home className="mr-2 h-4 w-4" />
+              Almacenes
+            </Button>
+
             {/* Compras Button */}
             <Button 
               variant={isActive('/dashboard/compras') ? "secondary" : "ghost"} 
@@ -56,6 +65,7 @@ export function Sidebar() {
               <ShoppingCart className="mr-2 h-4 w-4" />
               Compras
             </Button>
+            
           </div>
         </div>
       </div>
