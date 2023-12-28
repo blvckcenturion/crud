@@ -159,6 +159,7 @@ export interface Database {
           product_id: number
           purchase_id: number
           qty: number
+          unitary_price: number
           updated_at: string
         }
         Insert: {
@@ -168,6 +169,7 @@ export interface Database {
           product_id: number
           purchase_id: number
           qty: number
+          unitary_price: number
           updated_at?: string
         }
         Update: {
@@ -177,6 +179,7 @@ export interface Database {
           product_id?: number
           purchase_id?: number
           qty?: number
+          unitary_price?: number
           updated_at?: string
         }
         Relationships: [
@@ -201,25 +204,25 @@ export interface Database {
           active: boolean
           created_at: string
           id: number
-          storage_id: number
+          storage_id: number | null
+          type: number
           updated_at: string
-          value: number
         }
         Insert: {
           active: boolean
           created_at?: string
           id?: number
-          storage_id: number
+          storage_id?: number | null
+          type: number
           updated_at?: string
-          value: number
         }
         Update: {
           active?: boolean
           created_at?: string
           id?: number
-          storage_id?: number
+          storage_id?: number | null
+          type?: number
           updated_at?: string
-          value?: number
         }
         Relationships: [
           {
@@ -269,7 +272,19 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_purchase_with_items: {
+        Args: {
+          purchase_data: Json
+          items_data: Json[]
+        }
+        Returns: undefined
+      }
+      delete_purchase_with_items: {
+        Args: {
+          purchase_id: number
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
