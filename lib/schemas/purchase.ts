@@ -10,7 +10,9 @@ export const PurchaseSchema = z.object({
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
   storage_id: z.number().nullable(),
-  type: PurchaseTypeEnum
+  type: PurchaseTypeEnum.refine(type => type !== undefined && type !== null, {
+    message: "El tipo de compra es obligatorio."
+  })
 });
 
 export const PurchaseInsertSchema = PurchaseSchema.omit({
@@ -66,7 +68,8 @@ export const PurchaseWithItemsSchema = PurchaseSchema.extend({
 
 // Extended Schema for Front-End Use including productName
 export const PurchaseWithItemsExtendedSchema = PurchaseSchema.extend({
-  purchase_items: z.array(PurchaseItemExtendedSchema).optional()
+  purchase_items: z.array(PurchaseItemExtendedSchema).optional(),
+  storageName: z.string().optional().nullable()
 });
 
 export type PurchaseWithItems = z.infer<typeof PurchaseWithItemsSchema>;
@@ -88,3 +91,20 @@ const validatePurchaseItem = (item: PurchaseItemExtended) => {
     // Handle validation errors
   }
 };
+
+// Purchase with Items Insert Schema
+export const PurchaseWithItemsInsertSchema = PurchaseSchema.omit({
+  id: true, created_at: true, updated_at: true
+}).extend({
+  type: PurchaseTypeEnum.refine(type => type !== undefined && type !== null, {
+    message: "El tipo de compra es obligatorio."
+  }),
+  purchase_items: z.array(PurchaseItemInsertSchema).optional()
+});
+
+// Purchase with Items Update Schema
+export const PurchaseWithItemsUpdateSchema = PurchaseSchema.omit({
+  id: true, created_at: true
+}).extend({
+  purchase_items: z.array(PurchaseItemUpdateSchema).optional()
+}).partial();

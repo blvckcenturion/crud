@@ -60,8 +60,9 @@ export function Sidebar() {
 
             {/* Compras Button */}
             <Button 
-              variant={isActive('/dashboard/compras') ? "secondary" : "ghost"} 
-              className="w-full justify-start">
+              variant={isActive('/dashboard/purchase') ? "secondary" : "ghost"} 
+              className="w-full justify-start"
+              onClick={() => router.push('/dashboard/purchase')}>
               <ShoppingCart className="mr-2 h-4 w-4" />
               Compras
             </Button>

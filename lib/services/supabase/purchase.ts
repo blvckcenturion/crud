@@ -3,43 +3,45 @@ import { PurchaseInsert, PurchaseInsertSchema, PurchaseItemExtended, PurchaseIte
 
 // Function to fetch active purchases with their active items
 export const fetchActivePurchasesWithItems = async (): Promise<PurchaseWithItemsExtended[]> => {
-    try {
-      const { data, error } = await supabase
-        .from("purchases")
-        .select(`
+  try {
+    const { data, error } = await supabase
+      .from('purchases')
+      .select(`
+        *,
+        storage:storage_id (name),
+        purchase_items (
           *,
-          purchase_items (
-            *,
-            active.eq.true,
-            product:products (name)
-          )
-        `)
-        .eq("active", true)
-        .order("id", { ascending: true });
+          product:product_id (name)
+        )
+      `)
+      .eq('active', true)
+      .order('id', { ascending: true });
 
-      if (error) throw error;
+    if (error) throw error;
 
-      // Check if data is in the expected format
-      if (!Array.isArray(data)) {
-        throw new Error("Unexpected data format");
-      }
-
-      // Transform purchase_items to include the extended flags
-      const transformedData = data.map((purchase: any) => ({
-        ...purchase,
-        purchase_items: purchase.purchase_items?.map((item: any) => ({
-          ...item,
-          isNew: false,
-          isModified: false,
-          isDeleted: false
-        })) ?? []
-      }));
-
-      return transformedData as PurchaseWithItemsExtended[];
-    } catch (error) {
-      console.error("Error fetching purchases with items:", error);
-      throw error;
+    // Check if data is in the expected format
+    if (!Array.isArray(data)) {
+      throw new Error('Unexpected data format');
     }
+
+    // Transform purchase_items to include the extended flags
+    const transformedData = data.map((purchase) => ({
+      ...purchase,
+      storageName: purchase.storage?.name,
+      purchase_items: purchase.purchase_items?.map((item: any) => ({
+        ...item,
+        isNew: false,
+        isModified: false,
+        isDeleted: false,
+        productName: item.product?.name
+      })) ?? []
+    }));
+
+    return transformedData as PurchaseWithItemsExtended[];
+  } catch (error) {
+    console.error('Error fetching purchases with items:', error);
+    throw error;
+  }
 };
 
 
