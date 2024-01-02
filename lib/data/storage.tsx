@@ -54,7 +54,10 @@ export const createStorageColumns = (
   {
     accessorKey: "branch",
     header: "Sucursal",
-    cell: ({ row }) => BranchEnum.enum[row.original.branch] || "Desconocido"
+    cell: ({ row }) => {
+      console.log(row.original.branch)
+      return BranchEnum.enum[row.original.branch] || "Desconocido"
+    }
   },
   {
     accessorKey: "responsible",

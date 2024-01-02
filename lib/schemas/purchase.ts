@@ -37,7 +37,7 @@ export const PurchaseItemSchema = z.object({
 });
 
 export const PurchaseItemInsertSchema = PurchaseItemSchema.omit({
-  id: true, created_at: true, updated_at: true
+  id: true, created_at: true, updated_at: true, purchase_id: true
 }).partial();
 
 export const PurchaseItemUpdateSchema = PurchaseItemSchema.omit({
@@ -108,3 +108,8 @@ export const PurchaseWithItemsUpdateSchema = PurchaseSchema.omit({
 }).extend({
   purchase_items: z.array(PurchaseItemUpdateSchema).optional()
 }).partial();
+
+export const PurchaseTypeReverseMapping: Record<number, string> = {
+  1: 'nacional',
+  2: 'internacional',
+};

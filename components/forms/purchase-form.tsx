@@ -13,13 +13,18 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import {
   PurchaseWithItemsExtended,
   PurchaseWithItemsExtendedSchema,
   PurchaseTypeNumericalMapping,
   PurchaseWithItemsUpdateSchema,
   PurchaseWithItemsInsertSchema,
+  PurchaseItemExtended,
+  PurchaseInsertSchema,
+  PurchaseItemInsertSchema,
+  PurchaseUpdateSchema,
+  PurchaseItemUpdateSchema,
+  PurchaseTypeReverseMapping,
 } from '@/lib/schemas/purchase';
 import { fetchActiveStorage } from '@/lib/services/supabase/storage';
 import { fetchActiveProducts } from '@/lib/services/supabase/product';
@@ -27,6 +32,11 @@ import { useQuery } from 'react-query';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
 import { SelectGroup } from '@radix-ui/react-select';
+import ProductSelectorComponent from '../product-selector';
+import { useToast } from '../ui/use-toast';
+import useSuccessErrorMutation from '@/lib/mutations';
+import { createPurchaseWithItems, updatePurchaseWithItems } from '@/lib/services/supabase/purchase';
+
 
 interface PurchaseFormProps {
   purchase?: PurchaseWithItemsExtended | null; // Optional property for existing purchase data
@@ -36,18 +46,34 @@ interface PurchaseFormProps {
 export const PurchaseForm: React.FC<PurchaseFormProps> = ({ purchase, onOpenChange }) => {
   // State
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState<PurchaseItemExtended[]>([]);
 
-  // Form
+  // Convert numeric type to string representation for editing
+  const convertedType = purchase ? PurchaseTypeReverseMapping[Number(purchase.type)] : undefined;
+
   const form = useForm({
-    resolver: zodResolver(purchase ? PurchaseWithItemsUpdateSchema : PurchaseWithItemsInsertSchema),
-    defaultValues: purchase || {
-      type: undefined,
-      storage_id: null,
-      purchase_items: []
-    },
-  });
+      resolver: zodResolver(purchase ? PurchaseWithItemsUpdateSchema : PurchaseWithItemsInsertSchema),
+      defaultValues: {
+        type: convertedType, // Use the converted type here
+        storage_id: purchase?.storage_id || null,
+        purchase_items: purchase?.purchase_items || []
+      },
+    });
 
   // Mutations
+  const createPurchaseMutation = useSuccessErrorMutation(
+    createPurchaseWithItems,
+    'Compra',
+    'create',
+    { queryKey: ['purchases'] }
+  );
+
+  const updatePurchaseMutation = useSuccessErrorMutation(
+    updatePurchaseWithItems,
+    'Compra',
+    'update',
+    { queryKey: ['purchases'] }
+  );
 
   // Queries 
   const { data: products, isLoading: isLoadingProducts } = useQuery("products", fetchActiveProducts)
@@ -60,16 +86,72 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({ purchase, onOpenChan
   });
 
   const selectedType = form.watch("type");
+  const { toast } = useToast()
 
   const onSubmit = (data: any) => {
-    console.log('Form Data:', data);
-    // Implement your submission logic here
-    onOpenChange(false);
+    if (selectedProducts.length === 0) {
+      toast({
+        title: "Productos requeridos",
+        description: "Debe agregar al menos un producto a la compra.",
+        variant: "destructive"
+      });
+      return; // Prevent form submission
+    }
+  
+    if (data.type === 'nacional' && data.storage_id === null) {
+      toast({
+        title: "Se requiere almacen",
+        description: "Por favor seleccione un almacen para compras nacionales.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    console.log(data.type)
+
+    // Map type to its numerical value
+    const mappedPurchaseData = {
+      ...data,
+      type: PurchaseTypeNumericalMapping[data.type] || null
+    };
+  
+    const mappedItemsData = selectedProducts.map(item => ({
+      ...item,
+      product_id: item.product_id,
+      qty: item.qty,
+      unitary_price: item.unitary_price,
+      // Include other necessary fields from item
+    }));
+  
+    setIsLoading(true);
+    try {
+      if (purchase?.id === undefined) {
+  
+        // Validate Each Purchase Item
+        mappedItemsData.forEach(item => PurchaseItemInsertSchema.parse(item));
+  
+        // Create New Purchase
+        createPurchaseMutation.mutate({ purchaseData: mappedPurchaseData, itemsData: mappedItemsData });
+      } else {
+  
+        // Validate Each Purchase Item
+        mappedItemsData.forEach(item => PurchaseItemUpdateSchema.parse(item));
+  
+        // Update Existing Purchase
+        updatePurchaseMutation.mutate({ purchaseId: purchase.id, purchaseData: mappedPurchaseData, items: mappedItemsData });
+      }
+    } catch (error) {
+      console.error("Error in onSubmit function:", error);
+    } finally {
+      setIsLoading(false);
+      onOpenChange(false);
+    }
   };
 
   const router = useRouter();
 
   const handleStorageChange = (value: string) => {
+    
     if (value === "-1") {
       // Logic for navigating to storage page
       router.push("/dashboard/storage");
@@ -78,9 +160,25 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({ purchase, onOpenChan
     }
   };
 
+  // Effects 
+  useEffect(() => {
+    if (selectedType !== 'nacional') {
+      form.setValue("storage_id", null);
+    }
+  }, [selectedType, form]);
+
+  useEffect(() => {
+    // If updating a purchase, initialize selectedProducts with existing items
+    if (purchase) {
+      setSelectedProducts(purchase.purchase_items || []);
+    }
+  }, [purchase]);
+
+  
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="px-2 space-y-8 overflow-y-auto max-h-[80vh]">
+      <form onSubmit={form.handleSubmit((data) => onSubmit(data))} className="px-2 space-y-8 overflow-y-auto max-h-[85vh]">
         {/* Purchase Type Field */}
         <FormField control={form.control} name="type" render={({ field }) => (
           <FormItem>
@@ -131,29 +229,13 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({ purchase, onOpenChan
           )} />
         )}
 
-        {/* Purchase Items */}
-        <div>
-          <h3>Items de la Compra</h3>
-          {fields.map((item, index) => (
-            <div key={item.id} className="flex gap-4 mb-4">
-              <FormControl>
-                <SelectContent {...form.register(`purchase_items.${index}.product_id`)} defaultValue={item.product_id?.toString() || ''}>
-                  {products?.map(product => (
-                    <SelectItem key={product.id} value={product.id?.toString() ?? ''}>{product.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </FormControl>
-              <FormControl>
-                <Input type="number" {...form.register(`purchase_items.${index}.qty`)} defaultValue={item.qty} placeholder="Cantidad" />
-              </FormControl>
-              <FormControl>
-                <Input type="number" {...form.register(`purchase_items.${index}.unitary_price`)} defaultValue={item.unitary_price} placeholder="Precio Unitario" />
-              </FormControl>
-              <Button onClick={() => remove(index)}>Eliminar</Button>
-            </div>
-          ))}
-          <Button>Agregar Item</Button>
-        </div>
+        {/* Product Selector Component */}
+        <ProductSelectorComponent
+          selectedProducts={selectedProducts}
+          setSelectedProducts={setSelectedProducts}
+          products={products || []} // Ensure this is loaded with product data
+          purchaseId={purchase?.id} // Pass purchase ID if updating
+        />
 
         {/* Submit Button */}
         <Button type="submit" disabled={isLoading}>

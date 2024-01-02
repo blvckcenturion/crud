@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { format, parseISO } from 'date-fns';
 import { Checkbox } from "@/components/ui/checkbox";
-import { PurchaseWithItemsExtended, PurchaseTypeEnum } from "../schemas/purchase";
+import { PurchaseWithItemsExtended, PurchaseTypeEnum, PurchaseTypeReverseMapping } from "../schemas/purchase";
 
 const formatUSD = (value: number) => `$${value.toFixed(2)} USD`;
 
@@ -60,7 +60,9 @@ export const createPurchaseColumns = (openDialog: (purchase: PurchaseWithItemsEx
   {
     accessorKey: "type",
     header: "Tipo de Compra",
-    cell: ({ row }) => PurchaseTypeEnum.enum[row.original.type] || "Desconocido"
+    cell: ({ row }) => {
+      return PurchaseTypeReverseMapping[Number(row.original.type)] || "Desconocido"
+    }
   },
   {
     id: "purchase_items",

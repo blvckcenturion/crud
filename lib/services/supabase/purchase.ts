@@ -1,6 +1,18 @@
 import { supabase } from "@/lib/client/supabase";
 import { PurchaseInsert, PurchaseInsertSchema, PurchaseItemExtended, PurchaseItemExtendedSchema, PurchaseItemInsert, PurchaseItemInsertSchema, PurchaseItemSchema, PurchaseSchema, PurchaseUpdate, PurchaseUpdateSchema, PurchaseWithItemsExtended } from "@/lib/schemas/purchase";
 
+interface CreatePurchaseWithItemsParams {
+  purchaseData: PurchaseInsert;
+  itemsData: PurchaseItemInsert[];
+}
+
+// Interface for updatePurchaseWithItems function
+interface UpdatePurchaseWithItemsParams {
+  purchaseId: number;
+  purchaseData: PurchaseUpdate;
+  items: PurchaseItemExtended[];
+}
+
 // Function to fetch active purchases with their active items
 export const fetchActivePurchasesWithItems = async (): Promise<PurchaseWithItemsExtended[]> => {
   try {
@@ -44,73 +56,82 @@ export const fetchActivePurchasesWithItems = async (): Promise<PurchaseWithItems
   }
 };
 
+// Function to create purchase with items using an interface
+export const createPurchaseWithItems = async (params: CreatePurchaseWithItemsParams) => {
+  const { purchaseData, itemsData } = params;
 
-export const createPurchaseWithItems = async (purchaseData: PurchaseInsert, itemsData: PurchaseItemInsert[]) => {
-    try {
-      // Validate data
-      PurchaseInsertSchema.parse(purchaseData);
-      PurchaseItemInsertSchema.array().parse(itemsData);
+  try {
+    console.log("purchaseData", purchaseData)
+    console.log("itemsData", itemsData)
 
-      // RPC call to create purchase with items
-      const { data, error } = await supabase.rpc('create_purchase_with_items', {
-        purchase: purchaseData,
-        items: itemsData
-      });
 
-      if (error) throw error;
-      return data;
-    } catch (error) {
+    // RPC call to create purchase with items
+    // Ensure the parameter names match the expected names in your database function
+    const { data, error } = await supabase.rpc('create_purchase_with_items', {
+      purchase_data: purchaseData,
+      items_data: itemsData
+    });
+
+    if (error) {
       console.error("Error creating purchase with items:", error);
       throw error;
     }
+    return data;
+  } catch (error) {
+    console.error("Error in service function:", error);
+    throw error;
+  }
 };
+// Function to update a purchase and manage its items using an interface
+export const updatePurchaseWithItems = async (params: UpdatePurchaseWithItemsParams) => {
+  const { purchaseId, purchaseData, items } = params;
 
-// Function to update a purchase and manage its items
-export const updatePurchaseWithItems = async (purchaseId: number, purchaseData: PurchaseUpdate, items: PurchaseItemExtended[]) => {
-    try {
-      // Validate purchase data
-      PurchaseUpdateSchema.parse(purchaseData);
+  try {
+    console.log("purchaseData", purchaseData)
+    console.log("items", items)
+    // Update the purchase data in 'purchases' table
+    const { error: updateError } = await supabase
+      .from('purchases')
+      .update({
+        storage_id: purchaseData.storage_id,
+        type: purchaseData.type
+      })
+      .match({ id: purchaseId });
 
-      // Begin a transaction
-      const { data, error: updateError } = await supabase
-        .from('purchases')
-        .update(purchaseData)
-        .match({ id: purchaseId });
+    if (updateError) throw updateError;
 
-      if (updateError) throw updateError;
-
-      // Process each item
-      for (const item of items) {
-        // Validate each item
-        PurchaseItemExtendedSchema.parse(item);
-
-        if (item.isNew) {
-          // Insert new item
-          const { error: insertError } = await supabase.from('purchase_items').insert([{ ...item, purchase_id: purchaseId }]);
-          if (insertError) throw insertError;
-        } else if (item.isModified) {
-          // Update existing item
-          const { error: updateItemError } = await supabase.from('purchase_items').update(item).match({ id: item.id });
-          if (updateItemError) throw updateItemError;
-        } else if (item.isDeleted) {
-          // Deactivate or delete item
-          const { error: deleteError } = await supabase.from('purchase_items').update({ active: false }).match({ id: item.id });
-          if (deleteError) throw deleteError;
-        }
+    // Process each item in 'purchase_items' table
+    for (const item of items) {
+      if (item.isNew) {
+        // Insert new item
+        const { error: insertError } = await supabase.from('purchase_items').insert({
+          ...item,
+          purchase_id: purchaseId // Make sure to include the foreign key to link to 'purchases' table
+        });
+        if (insertError) throw insertError;
+      } else if (item.isModified) {
+        // Update existing item
+        const { error: updateItemError } = await supabase.from('purchase_items').update(item).match({ id: item.id });
+        if (updateItemError) throw updateItemError;
+      } else if (item.isDeleted) {
+        // Deactivate or delete item
+        const { error: deleteError } = await supabase.from('purchase_items').delete().match({ id: item.id });
+        if (deleteError) throw deleteError;
       }
-
-      return { purchaseId, purchaseData, items };
-    } catch (error) {
-      console.error("Error updating purchase with items:", error);
-      throw error;
     }
+
+    return { purchaseId, purchaseData, items };
+  } catch (error) {
+    console.error("Error updating purchase with items:", error);
+    throw error;
+  }
 };
 
 export const deletePurchaseWithItems = async (purchaseId: number) => {
     try {
       // RPC call to delete purchase with items
       const { error } = await supabase.rpc('delete_purchase_with_items', {
-        purchase_id: purchaseId
+        p_id: purchaseId
       });
 
       if (error) throw error;
