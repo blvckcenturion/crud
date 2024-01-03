@@ -1,6 +1,8 @@
-'use client';
+// importCostsColumns.ts
 
 import { Button } from "@/components/ui/button";
+import { ImportCostsRow } from "../schemas/import-cost"; // Adjust the import path to your import cost schema
+
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import {
@@ -12,27 +14,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { format, parseISO } from 'date-fns';
 import { Checkbox } from "@/components/ui/checkbox";
-import { PurchaseWithItemsExtended, PurchaseTypeEnum, PurchaseTypeReverseMapping } from "../schemas/purchase";
 
-const formatUSD = (value: number) => `$${value.toFixed(2)} USD`;
-
-const renderPurchaseItemsDetails = (items: any[]) => (
-  <ul>
-    {items.map((item, index) => (
-      <li key={index} className="font-semibold">
-        {item.productName}: {item.qty} x {formatUSD(item.unitary_price)} = {formatUSD(item.qty * item.unitary_price)}
-      </li>
-    ))}
-  </ul>
-);
-
-export const createPurchaseColumns = (openDialog: (purchase: PurchaseWithItemsExtended) => void, openUpdateDialog: (purchase: PurchaseWithItemsExtended) => void): ColumnDef<PurchaseWithItemsExtended>[] => [
-  // Select column
+export const createImportCostsColumns = (
+  openDialog: (importCost: ImportCostsRow) => void, 
+  openUpdateDialog: (importCost: ImportCostsRow) => void
+): ColumnDef<ImportCostsRow>[] => [
   {
     id: "select",
     header: ({ table }) => (
       <Checkbox
-        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
         className="translate-y-[2px]"
@@ -48,37 +42,55 @@ export const createPurchaseColumns = (openDialog: (purchase: PurchaseWithItemsEx
     ),
     enableSorting: false,
     enableHiding: false,
+    },
+    {
+      accessorKey: "id",
+      header: "ID de costo"
   },
   {
-    accessorKey: "id",
-    header: "ID",
+    accessorKey: "order_id",
+    header: "ID de Orden"
+  },
+  {
+    accessorKey: "providers.name",
+    header: "Nombre del Proveedor",
+    cell: ({ row }) => row.original.providers?.name || 'Desconocido'
+  },
+  {
+    accessorKey: "fob_value",
+    header: "Valor FOB"
+  },
+  {
+    accessorKey: "maritime_transport_cost",
+    header: "Costo de Transporte Marítimo"
+  },
+  {
+    accessorKey: "land_transport_cost",
+    header: "Costo de Transporte Terrestre"
+  },
+  {
+    accessorKey: "tax_iva",
+    header: "Impuesto IVA"
+  },
+  {
+    accessorKey: "net_value",
+    header: "Valor Neto"
+  },
+  {
+    accessorKey: "additional_costs",
+    header: "Costos Adicionales"
+  },
+  {
+    accessorKey: "import_date",
+    header: "Fecha de Importación",
     cell: ({ row }) => {
-      return `ORDEN-${row.original.id}`
+      const dateValue = row.original.import_date;
+      return dateValue ? format(parseISO(dateValue), "yyyy-MM-dd") : 'N/A';
     }
   },
   {
-    accessorKey: "storageName",
-    header: "Almacen"
-  },
-  {
-    accessorKey: "type",
-    header: "Tipo de Compra",
-    cell: ({ row }) => {
-      return PurchaseTypeReverseMapping[Number(row.original.type)] || "Desconocido"
-    }
-  },
-  {
-    id: "purchase_items",
-    header: "Detalles",
-    cell: ({ row }) => renderPurchaseItemsDetails(row.original.purchase_items || [])
-  },
-  {
-    accessorKey: "subtotal",
-    header: "Subtotal",
-    cell: ({ row }) => {
-        const subtotal = row.original.purchase_items ? row.original.purchase_items.reduce((total, item) => total + (item.qty * item.unitary_price), 0) : 0;
-        return formatUSD(subtotal);
-      }
+    accessorKey: "additional_notes",
+    header: "Notas Adicionales"
   },
   {
     accessorKey: "created_at",
@@ -126,23 +138,23 @@ export const createPurchaseColumns = (openDialog: (purchase: PurchaseWithItemsEx
       }
     }
   },
-  // Actions column
   {
     id: "actions",
     cell: ({ row }) => {
-      const purchase = row.original;
+      const importCost = row.original;
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir menu</span>
+              <span className="sr-only">Abrir menú</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => openUpdateDialog(purchase)}>Editar</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => openDialog(purchase)}>Eliminar</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => openUpdateDialog(importCost)}>Editar</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => openDialog(importCost)}>Eliminar</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

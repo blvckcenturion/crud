@@ -2,7 +2,7 @@
 'use client'
 
 import { cn } from "@/lib/utils"
-import { Box, Truck, ShoppingCart, Home } from 'lucide-react';
+import { Box, Truck, ShoppingCart, Home, Archive } from 'lucide-react';
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "../button";
 
@@ -31,7 +31,7 @@ export function Sidebar() {
               className="w-full justify-start" 
               onClick={() => router.push('/dashboard/')}>
               <Home className="mr-2 h-4 w-4" />
-              Panel de Control
+              Panel 
             </Button>
             {/* Productos Button */}
             <Button 
@@ -65,6 +65,14 @@ export function Sidebar() {
               onClick={() => router.push('/dashboard/purchase')}>
               <ShoppingCart className="mr-2 h-4 w-4" />
               Compras
+            </Button>
+            {/* Costos de Importacion Button */}
+            <Button 
+              variant={isActive('/dashboard/import-cost') ? "secondary" : "ghost"} 
+              className="w-full justify-start"
+              onClick={() => router.push('/dashboard/import-cost')}>
+              <Archive className="mr-2 h-4 w-4" />
+              Importacion
             </Button>
             
           </div>

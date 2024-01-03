@@ -28,6 +28,63 @@ export interface Database {
         }
         Relationships: []
       }
+      import_costs: {
+        Row: {
+          additional_costs: number
+          additional_notes: string
+          fob_value: number
+          id: number
+          import_date: string
+          land_transport_cost: number | null
+          maritime_transport_cost: number | null
+          net_value: number
+          order_id: number
+          provider_id: number
+          tax_iva: number
+        }
+        Insert: {
+          additional_costs: number
+          additional_notes: string
+          fob_value: number
+          id?: number
+          import_date: string
+          land_transport_cost?: number | null
+          maritime_transport_cost?: number | null
+          net_value: number
+          order_id: number
+          provider_id: number
+          tax_iva: number
+        }
+        Update: {
+          additional_costs?: number
+          additional_notes?: string
+          fob_value?: number
+          id?: number
+          import_date?: string
+          land_transport_cost?: number | null
+          maritime_transport_cost?: number | null
+          net_value?: number
+          order_id?: number
+          provider_id?: number
+          tax_iva?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_costs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "import_costs_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       products: {
         Row: {
           active: boolean
@@ -281,7 +338,7 @@ export interface Database {
       }
       delete_purchase_with_items: {
         Args: {
-          purchase_id: number
+          p_id: number
         }
         Returns: undefined
       }

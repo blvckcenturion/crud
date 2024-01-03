@@ -1,7 +1,6 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-ProviderWithCountrySchema
 
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown, MoreHorizontal } from "lucide-react"
