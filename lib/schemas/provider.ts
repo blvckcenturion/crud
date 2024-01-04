@@ -1,5 +1,20 @@
 import { z } from "zod";
 
+// Enum for payment options
+const PaymentEnum = z.enum(['contado', 'credito']);
+
+// Numerical mapping for payment options
+const paymentNumericalMapping: Record<string, number> = {
+  "contado": 1,
+  "credito": 2,
+};
+
+// Reverse mapping for payment options
+const paymentReverseMapping: Record<number, string> = {
+  1: "contado",
+  2: "credito",
+};
+
 // Schema for Provider Insert/Update
 const ProviderInsertUpdateSchema = z.object({
   id: z.number().optional(), // Optional for insertions as it's auto-generated
@@ -9,7 +24,18 @@ const ProviderInsertUpdateSchema = z.object({
     message: "El país es obligatorio."
   }), // Foreign key reference to the country
   created_at: z.string().optional(), // Auto-generated
-  updated_at: z.string().optional() // Auto-generated
+  updated_at: z.string().optional(), // Auto-generated
+  social_reason: z.string().nullable(),
+  nit: z.string().nullable(),
+  address: z.string().nullable(),
+  location: z.string().nullable(),
+  city: z.string().nullable(),
+  phones: z.string().nullable(),
+  fax: z.string().nullable(),
+  email: z.string().nullable(),
+  contact_person: z.string().nullable(),
+  website: z.string().nullable(),
+  payment: z.number(), // Using the PaymentEnum for the payment field
 });
 
 // Schema for Provider Retrieval (including country name)
@@ -30,5 +56,8 @@ export {
   ProviderInsertUpdateSchema,
   ProviderWithCountrySchema,
   ProvidersArrayInsertUpdateSchema,
-  ProvidersWithCountryArraySchema
+  ProvidersWithCountryArraySchema,
+  PaymentEnum,
+  paymentNumericalMapping,
+  paymentReverseMapping
 };

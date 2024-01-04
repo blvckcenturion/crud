@@ -6,7 +6,7 @@ import { Select, SelectItem, SelectTrigger, SelectValue, SelectContent } from "@
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ProviderType, ProviderInsertUpdateSchema } from "../../lib/schemas/provider"; // Adjust path as needed
+import { ProviderType, ProviderInsertUpdateSchema, paymentNumericalMapping } from "../../lib/schemas/provider"; // Adjust path as needed
 import { useQuery } from "react-query";
 import { useState } from "react";
 import { ReloadIcon } from "@radix-ui/react-icons";
@@ -34,7 +34,18 @@ export function ProviderForm({ provider, onOpenChange }: ProviderFormProps) {
     mode: "onChange",
     defaultValues: provider || {
       name: '',
-      country_id: 1
+      country_id: 1, // Assuming '1' is a valid default country_id
+      social_reason: '',
+      nit: '',
+      address: '',
+      location: '',
+      city: '',
+      phones: '',
+      fax: '',
+      email: '',
+      contact_person: '',
+      website: '',
+      payment: 1 // Assuming 'contado' as the default payment method
     }
   });
 
@@ -63,8 +74,9 @@ export function ProviderForm({ provider, onOpenChange }: ProviderFormProps) {
   const onSubmit = async (data: ProviderType) => {
     try {
       setIsLoading(true)
+
       if (provider && provider.id) {
-        updateMutation.mutate({ ...data, id: provider.id });
+        updateMutation.mutate(data);
       } else {
         addMutation.mutate(data);
       }
@@ -102,6 +114,135 @@ export function ProviderForm({ provider, onOpenChange }: ProviderFormProps) {
                   {countries?.map(country => (
                     <SelectItem key={country.id} value={String(country.id)}>{country.name}</SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
+        {/* Social Reason Field */}
+        <FormField control={form.control} name="social_reason" render={({ field }) => (
+          <FormItem>
+            <FormLabel htmlFor="social_reason">Razón Social</FormLabel>
+            <FormControl>
+              <Input {...field} id="social_reason" placeholder="Ingrese la razón social" value={field.value || ''}/>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
+        {/* NIT Field */}
+        <FormField control={form.control} name="nit" render={({ field }) => (
+          <FormItem>
+            <FormLabel htmlFor="nit">NIT</FormLabel>
+            <FormControl>
+              <Input {...field} id="nit" placeholder="Ingrese el NIT" value={field.value || ''}/>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
+        {/* Address Field */}
+        <FormField control={form.control} name="address" render={({ field }) => (
+          <FormItem>
+            <FormLabel htmlFor="address">Dirección</FormLabel>
+            <FormControl>
+              <Input {...field} id="address" placeholder="Ingrese la dirección" value={field.value || ''}/>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
+        {/* Location Field */}
+        <FormField control={form.control} name="location" render={({ field }) => (
+          <FormItem>
+            <FormLabel htmlFor="location">Localidad</FormLabel>
+            <FormControl>
+              <Input {...field} id="location" placeholder="Ingrese la localidad" value={field.value || ''}/>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
+        {/* City Field */}
+        <FormField control={form.control} name="city" render={({ field }) => (
+          <FormItem>
+            <FormLabel htmlFor="city">Ciudad</FormLabel>
+            <FormControl>
+              <Input {...field} id="city" placeholder="Ingrese la ciudad" value={field.value || ''}/>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
+        {/* Phones Field */}
+        <FormField control={form.control} name="phones" render={({ field }) => (
+          <FormItem>
+            <FormLabel htmlFor="phones">Teléfonos</FormLabel>
+            <FormControl>
+              <Input {...field} id="phones" placeholder="Ingrese los números de teléfono" value={field.value || ''}/>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
+        {/* Fax Field */}
+        <FormField control={form.control} name="fax" render={({ field }) => (
+          <FormItem>
+            <FormLabel htmlFor="fax">Fax</FormLabel>
+            <FormControl>
+              <Input {...field} id="fax" placeholder="Ingrese el número de fax" value={field.value || ''}/>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
+        {/* Email Field */}
+        <FormField control={form.control} name="email" render={({ field }) => (
+          <FormItem>
+            <FormLabel htmlFor="email">Correo Electrónico</FormLabel>
+            <FormControl>
+              <Input {...field} id="email" placeholder="Ingrese el correo electrónico" value={field.value || ''}/>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
+        {/* Contact Person Field */}
+        <FormField control={form.control} name="contact_person" render={({ field }) => (
+          <FormItem>
+            <FormLabel htmlFor="contact_person">Persona de Contacto</FormLabel>
+            <FormControl>
+              <Input {...field} id="contact_person" placeholder="Ingrese el nombre de la persona de contacto" value={field.value || ''}/>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
+        {/* Website Field */}
+        <FormField control={form.control} name="website" render={({ field }) => (
+          <FormItem>
+            <FormLabel htmlFor="website">Sitio Web</FormLabel>
+            <FormControl>
+              <Input {...field} id="website" placeholder="Ingrese la URL del sitio web" value={field.value || ''}/>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
+        {/* Payment Field */}
+        <FormField control={form.control} name="payment" render={({ field }) => (
+          <FormItem>
+            <FormLabel htmlFor="payment">Forma de Pago</FormLabel>
+            <FormControl>
+              <Select {...field} value={String(field.value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione una forma de pago" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">Contado</SelectItem>
+                  <SelectItem value="2">Crédito</SelectItem>
                 </SelectContent>
               </Select>
             </FormControl>

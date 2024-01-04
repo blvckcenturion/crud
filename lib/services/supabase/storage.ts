@@ -10,7 +10,6 @@ export const fetchActiveStorage = async () => {
     const { data, error } = await supabase
       .from("storage")
       .select("*")
-      .eq("active", true)
       .order("id", { ascending: true });
 
     if (error) throw error;

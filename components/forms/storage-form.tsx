@@ -41,7 +41,8 @@ export function StorageForm({ storage, onOpenChange }: StorageFormProps) {
       name: '',
       address: '',
       branch: undefined,
-      responsible: ''
+      responsible: '',
+      phones: ''
     },
   });
 
@@ -146,6 +147,21 @@ export function StorageForm({ storage, onOpenChange }: StorageFormProps) {
               <FormLabel htmlFor="responsible">Responsable</FormLabel>
               <FormControl>
                 <Input {...field} id="responsible" name="responsible" autoComplete="responsible" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Phones Field */}
+        <FormField
+          control={form.control}
+          name="phones"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="phones">Teléfonos</FormLabel>
+              <FormControl>
+                <Input {...field} id="phones" name="phones" autoComplete="tel" value={field.value || ''} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -42,14 +42,26 @@ export const createStorageColumns = (
     ),
     enableSorting: false,
     enableHiding: false,
+    },
+  {
+    accessorKey: "id",
+    header: "ID",
+    cell: ({ row }) => {
+      return `AC-${row.original.id}`
+    }
   },
   {
     accessorKey: "name",
     header: "Nombre"
-  },
+    },
+  
   {
     accessorKey: "address",
     header: "Dirección"
+  },
+  {
+    accessorKey: "phones",
+    header: "Telefonos"
   },
   {
     accessorKey: "branch",
@@ -107,6 +119,13 @@ export const createStorageColumns = (
         console.error("Error formatting date:", error);
         return 'Invalid Date';
       }
+    }
+  },
+  {
+    accessorKey: "active",
+    header: "Estado",
+    cell: ({ row }) => {
+      return row.original.active ? "Habilitado" : "Deshabilitado"
     }
   },
   {

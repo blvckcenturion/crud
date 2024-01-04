@@ -16,6 +16,7 @@ export const StorageRowSchema = z.object({
   id: z.number(),
   name: z.string().trim().min(1, "El nombre es obligatorio."),
   responsible: z.string().trim().min(1, "El responsable es obligatorio."),
+  phones: z.string().nullable(),
   updated_at: z.string()
 });
 
@@ -29,6 +30,7 @@ export const StorageInsertSchema = StorageRowSchema.omit({
   branch: BranchEnum.optional().refine(val => val !== undefined, {
     message: "La sucursal es obligatoria."
   }),
+  phones: z.string().nullable().optional()
 });
 
 // Zod schema for updating an existing row in 'storage' table
@@ -40,6 +42,7 @@ export const StorageUpdateSchema = StorageRowSchema.omit({
   branch: BranchEnum.optional().refine(val => val !== undefined, {
     message: "La sucursal es obligatoria."
   }),
+  phones: z.string().nullable().optional()
 });
 // TypeScript types inferred from Zod schemas
 export type StorageRow = z.infer<typeof StorageRowSchema>;

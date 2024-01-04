@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { format, parseISO } from 'date-fns';
-import { ProviderWithCountrySchema, ProviderWithCountryType } from "../schemas/provider"
+import { ProviderWithCountrySchema, ProviderWithCountryType, paymentReverseMapping } from "../schemas/provider"
 import { Checkbox } from "@/components/ui/checkbox"
 
 export const createProviderColumns = (openDialog: (provider: ProviderWithCountryType) => void, openUpdateDialog: (provider: ProviderWithCountryType) => void): ColumnDef<ProviderWithCountryType>[] => [
@@ -39,7 +39,14 @@ export const createProviderColumns = (openDialog: (provider: ProviderWithCountry
     ),
     enableSorting: false,
     enableHiding: false,
-    },
+  },
+  {
+    accessorKey: "id",
+    header: "ID",
+    cell: ({ row }) => {
+      return `CP-${row.original.id}`
+    }
+  },
   {
     accessorKey: "name",
     header: "Nombre"
@@ -48,6 +55,61 @@ export const createProviderColumns = (openDialog: (provider: ProviderWithCountry
     accessorKey: "country.name",
     header: "País",
     cell: ({ row }) => row.original?.country?.name || "Sin País"
+  },
+  {
+    accessorKey: "social_reason",
+    header: "Razón Social",
+    cell: ({ row }) => row.original.social_reason || "N/A"
+  },
+  {
+    accessorKey: "nit",
+    header: "NIT",
+    cell: ({ row }) => row.original.nit || "N/A"
+  },
+  {
+    accessorKey: "address",
+    header: "Dirección",
+    cell: ({ row }) => row.original.address || "N/A"
+  },
+  {
+    accessorKey: "location",
+    header: "Localidad",
+    cell: ({ row }) => row.original.location || "N/A"
+  },
+  {
+    accessorKey: "city",
+    header: "Ciudad",
+    cell: ({ row }) => row.original.city || "N/A"
+  },
+  {
+    accessorKey: "phones",
+    header: "Teléfonos",
+    cell: ({ row }) => row.original.phones || "N/A"
+  },
+  {
+    accessorKey: "fax",
+    header: "Fax",
+    cell: ({ row }) => row.original.fax || "N/A"
+  },
+  {
+    accessorKey: "email",
+    header: "Correo Electrónico",
+    cell: ({ row }) => row.original.email || "N/A"
+  },
+  {
+    accessorKey: "contact_person",
+    header: "Persona de Contacto",
+    cell: ({ row }) => row.original.contact_person || "N/A"
+  },
+  {
+    accessorKey: "website",
+    header: "Sitio Web",
+    cell: ({ row }) => row.original.website || "N/A"
+  },
+  {
+    accessorKey: "payment",
+    header: "Forma de Pago",
+    cell: ({ row }) => paymentReverseMapping[row.original.payment] || "N/A"
   },
   {
     accessorKey: "created_at",
