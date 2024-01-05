@@ -125,27 +125,5 @@ export const createPurchaseColumns = (openDialog: (purchase: PurchaseWithItemsEx
         return 'Invalid Date';
       }
     }
-  },
-  // Actions column
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const purchase = row.original;
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => openUpdateDialog(purchase)}>Editar</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => openDialog(purchase)}>Eliminar</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
   }
 ];
