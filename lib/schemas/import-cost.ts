@@ -1,44 +1,168 @@
 import { z } from 'zod';
 
-// Zod schema for 'import_costs' table row
 export const ImportCostsRowSchema = z.object({
     id: z.number(),
     order_id: z.number().refine(val => val !== null, { message: "El ID de orden es requerido." }),
-    provider_id: z.number().refine(val => val !== null, { message: "El ID de proveedor es requerido." }),
-    providers: z.object({
-      name: z.string()
-    }).optional(),
-    fob_value: z.number().refine(val => val !== null, { message: "El valor FOB es requerido." }),
-    maritime_transport_cost: z.number().nullable(),
-    land_transport_cost: z.number().nullable(),
-    tax_iva: z.number().refine(val => val !== null, { message: "El impuesto IVA es requerido." }),
-    net_value: z.number().refine(val => val !== null, { message: "El valor neto es requerido." }),
-    additional_costs: z.number().refine(val => val !== null, { message: "Costos adicionales son requeridos." }),
-    import_date: z.string().refine(val => val !== null, { message: "La fecha de importación es requerida." }),
-    additional_notes: z.string().trim().min(1, "Notas adicionales son requeridas.").refine(val => val !== null, { message: "Notas adicionales son requeridas." }),
     active: z.boolean(),
     created_at: z.string(), // Assuming the date is provided as a string
-    updated_at: z.string()  // Assuming the date is provided as a string
+    updated_at: z.string(), // Assuming the date is provided as a string
+    maritime_transportation: z.number().refine(val => val >= 0, { message: "Transporte Marítimo debe ser un valor positivo." }),
+    maritime_transportation_detail: z.string().optional(),
+    land_transportation: z.number().refine(val => val >= 0, { message: "Transporte Terrestre debe ser un valor positivo." }),
+    land_transportation_detail: z.string().optional(),
+    foreign_insurance: z.number().refine(val => val >= 0, { message: "Seguro Exterior debe ser un valor positivo." }),
+    foreign_insurance_detail: z.string().optional(),
+    aspb_port_expenses: z.number().refine(val => val >= 0, { message: "Gastos Portuarios ASPB debe ser un valor positivo." }),
+    aspb_port_expenses_detail: z.string().optional(),
+    intermediary_commissions: z.number().refine(val => val >= 0, { message: "Comisiones Intermediarios debe ser un valor positivo." }),
+    intermediary_commissions_detail: z.string().optional(),
+    other_expenses_i: z.number().refine(val => val >= 0, { message: "Otros Gastos I debe ser un valor positivo." }),
+    other_expenses_i_detail: z.string().optional(),
+    consolidated_tax_duty: z.number().refine(val => val >= 0, { message: "Gravamen Impuesto Consolidado (GAC) debe ser un valor positivo." }),
+    consolidated_tax_duty_detail: z.string().optional(),
+    value_added_tax_iva: z.number().refine(val => val >= 0, { message: "Impuesto al Valor Agregado (IVA) debe ser un valor positivo." }),
+    value_added_tax_iva_detail: z.string().optional(),
+    specific_consumption_tax_ice: z.number().refine(val => val >= 0, { message: "Impuesto al Consumo Especifico (ICE) debe ser un valor positivo." }),
+    specific_consumption_tax_ice_detail: z.string().optional(),
+    other_penalties: z.number().refine(val => val >= 0, { message: "Contravenciones Otros debe ser un valor positivo." }),
+    other_penalties_detail: z.string().optional(),
+    albo_customs_storage: z.number().refine(val => val >= 0, { message: "Almacenaje Aduana ALBO S.A. debe ser un valor positivo." }),
+    albo_customs_storage_detail: z.string().optional(),
+    albo_customs_logistics: z.number().refine(val => val >= 0, { message: "Logística Aduana ALBO S.A. debe ser un valor positivo." }),
+    albo_customs_logistics_detail: z.string().optional(),
+    dui_forms: z.number().refine(val => val >= 0, { message: "Formularios DUI debe ser un valor positivo." }),
+    dui_forms_detail: z.string().optional(),
+    djv_forms: z.number().refine(val => val >= 0, { message: "Formularios DJV debe ser un valor positivo." }),
+    djv_forms_detail: z.string().optional(),
+    other_expenses_ii: z.number().refine(val => val >= 0, { message: "Otros Gastos II debe ser un valor positivo." }),
+    other_expenses_ii_detail: z.string().optional(),
+    chamber_of_commerce: z.number().refine(val => val >= 0, { message: "Cámara de Comercio debe ser un valor positivo." }),
+    chamber_of_commerce_detail: z.string().optional(),
+    senasag: z.number().refine(val => val >= 0, { message: "Senasag debe ser un valor positivo." }),
+    senasag_detail: z.string().optional(),
+    custom_agent_commissions: z.number().refine(val => val >= 0, { message: "Comisiones Agente Despachante Aduana debe ser un valor positivo." }),
+    custom_agent_commissions_detail: z.string().optional(),
+    financial_commissions: z.number().refine(val => val >= 0, { message: "Comisiones Financieras debe ser un valor positivo." }),
+    financial_commissions_detail: z.string().optional(),
+    other_commissions: z.number().refine(val => val >= 0, { message: "Otras Comisiones debe ser un valor positivo." }),
+    other_commissions_detail: z.string().optional(),
+    national_transportation: z.number().refine(val => val >= 0, { message: "Transporte Nacional debe ser un valor positivo." }),
+    national_transportation_detail: z.string().optional(),
+    insurance: z.number().refine(val => val >= 0, { message: "Seguros debe ser un valor positivo." }),
+    insurance_detail: z.string().optional(),
+    handling_and_storage: z.number().refine(val => val >= 0, { message: "Cargos y Manipuleo debe ser un valor positivo." }),
+    handling_and_storage_detail: z.string().optional(),
+    other_expenses_iii: z.number().refine(val => val >= 0, { message: "Otros Gastos III debe ser un valor positivo." }),
+    other_expenses_iii_detail: z.string().optional(),
+    optional_expense_1: z.number().refine(val => val >= 0, { message: "Gasto opcional 1 debe ser un valor positivo." }),
+    optional_expense_1_detail: z.string().optional(),
+    optional_expense_2: z.number().refine(val => val >= 0, { message: "Gasto opcional 2 debe ser un valor positivo." }),
+    optional_expense_2_detail: z.string().optional(),
+    optional_expense_3: z.number().refine(val => val >= 0, { message: "Gasto opcional 3 debe ser un valor positivo." }),
+    optional_expense_3_detail: z.string().optional(),
+    optional_expense_4: z.number().refine(val => val >= 0, { message: "Gasto opcional 4 debe ser un valor positivo." }),
+    optional_expense_4_detail: z.string().optional(),
+    optional_expense_5: z.number().refine(val => val >= 0, { message: "Gasto opcional 5 debe ser un valor positivo." }),
+    optional_expense_5_detail: z.string().optional(),
+    fob_value: z.number(),
+    cif_value: z.number(),
+    total_warehouse_cost: z.number().refine(val => val >= 0, { message: "Costo total Almacenes debe ser un valor positivo." }),
+    cf_iva: z.number().refine(val => val >= 0, { message: "CF IVA debe ser un valor positivo." }),
+    net_total_warehouse_cost: z.number()
 });
 
-// Zod schema for inserting a new row into 'import_costs' table
-export const ImportCostsInsertSchema = ImportCostsRowSchema.omit({
-  id: true, // Automatically generated, not needed on insert
-  active: true,
-  created_at: true, // Automatically set to NOW(), not needed on insert
-  updated_at: true,  // Automatically set to NOW(), not needed on insert
-  providers: true
-}).partial();
+export const ImportCostsDetailRowSchema = z.object({
+  id: z.number(),
+  active: z.boolean(),
+  created_at: z.string().optional(),
+  updated_at: z.string().optional(),
+  product_id: z.number(),
+  productName: z.string(),
+  import_costs_id: z.number(),
+  unit_costs: z.number(),
+})
 
-// Zod schema for updating an existing row in 'import_costs' table
-export const ImportCostsUpdateSchema = ImportCostsRowSchema.omit({
-  id: true, // Cannot change the ID of an existing row
-  active: true,
-  created_at: true, // Should not update the creation timestamp
-  providers: true
-}).partial();
+// Type for retrieval
+export const ImportCostsWithDetailSchema = ImportCostsRowSchema.extend({
+  import_costs_details: z.array(ImportCostsDetailRowSchema).optional()
+})
 
 // TypeScript types inferred from Zod schemas
 export type ImportCostsRow = z.infer<typeof ImportCostsRowSchema>;
-export type ImportCostsInsert = z.infer<typeof ImportCostsInsertSchema>;
-export type ImportCostsUpdate = z.infer<typeof ImportCostsUpdateSchema>;
+export type ImportCostsDetailRowSchema = z.infer<typeof ImportCostsDetailRowSchema>;
+export type ImportCostsWithDetailSchema = z.infer<typeof ImportCostsWithDetailSchema>;
+
+// Insert values
+export const InsertImportCostsSchema = ImportCostsRowSchema.omit({
+  id: true,
+  active: true,
+  created_at: true,
+  updated_at: true
+});
+
+export const InsertImportCostsDetailSchema = ImportCostsDetailRowSchema.omit({
+  id: true,
+  active: true,
+  created_at: true,
+  updated_at: true
+}).extend({
+  product_id: z.number(),
+  unit_costs: z.number()
+});
+
+
+
+
+// to pass to the function that will calculate the final values
+export const ImportCostsFormSchema = ImportCostsRowSchema.omit({
+  id: true,
+  active: true,
+  created_at: true,
+  updated_at: true,
+  fob_value: true,
+  cif_value: true,
+  net_total_warehouse_cost: true
+});
+
+export const ImportCostsDetailFormSchema = z.object({
+  product_id: z.number(),
+  qty: z.number(),
+  unitary_price: z.number()
+})
+
+// Step 1
+// Calculate FOB
+// You calculate the FOB by summing all the ImportCostsDetailFormSchemas 
+// FOB = SUM(ImportCostsDetailFormSchema(qty * unitary_price))
+
+// Step 2
+// Calculate CIF
+// CIF = FOB + maritime_transportation + land_transportation + foreign_insurance + aspb_port_expenses + intermediary_commissions + other_expenses_i
+
+// Step 3
+// Calculate net_total_warehouse_cost
+// NTWC = TWC - CF_IVA
+
+// Step 4
+// Calculate Unitary costs
+
+// 4.1 Calculate the distribution coefficient for each item
+// coefficient_item_1 = subtotal_1 / FOB
+// coefficient_item_2 = subtotal_2 / FOB
+// coefficient_item_3 = subtotal_3 / FOB
+
+// 4.2 Calculate Unitary costs
+// unitary_cost_item_1 = coefficient_item_1 * NTWC
+// unitary_cost_item_2 = coefficient_item_2 * NTWC
+// unitary_cost_item_3 = coefficient_item_3 * NTWC
+
+// For calculation results
+export const IntermediateImportCostsReturnSchema = z.object({
+  fob_value: z.number(),
+  cif_value: z.number(),
+  net_total_warehouse_cost: z.number()
+});
+
+export const IntermediateImportCostsDetailReturnSchema = z.object({
+  unit_costs: z.number()
+})

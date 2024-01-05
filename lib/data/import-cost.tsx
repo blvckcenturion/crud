@@ -45,53 +45,23 @@ export const createImportCostsColumns = (
     },
     {
       accessorKey: "id",
-      header: "ID de costo"
+      header: "ID de importacion"
   },
   {
     accessorKey: "order_id",
-    header: "ID de Orden"
-  },
-  {
-    accessorKey: "providers.name",
-    header: "Nombre del Proveedor",
-    cell: ({ row }) => row.original.providers?.name || 'Desconocido'
-  },
-  {
-    accessorKey: "fob_value",
-    header: "Valor FOB"
-  },
-  {
-    accessorKey: "maritime_transport_cost",
-    header: "Costo de Transporte Marítimo"
-  },
-  {
-    accessorKey: "land_transport_cost",
-    header: "Costo de Transporte Terrestre"
-  },
-  {
-    accessorKey: "tax_iva",
-    header: "Impuesto IVA"
-  },
-  {
-    accessorKey: "net_value",
-    header: "Valor Neto"
-  },
-  {
-    accessorKey: "additional_costs",
-    header: "Costos Adicionales"
-  },
-  {
-    accessorKey: "import_date",
-    header: "Fecha de Importación",
+    header: "ID de Compra",
     cell: ({ row }) => {
-      const dateValue = row.original.import_date;
-      return dateValue ? format(parseISO(dateValue), "yyyy-MM-dd") : 'N/A';
+      return `ORDEN-${row.original.id}`
     }
+    },
+    {
+    accessorKey: "cif_value",
+    header: "Total Valor CIF"  
   },
   {
-    accessorKey: "additional_notes",
-    header: "Notas Adicionales"
-  },
+  accessorKey: "net_total_warehouse_cost",
+  header: "Costo total Almacenes"  
+},
   {
     accessorKey: "created_at",
     header: ({ column }) => (
@@ -137,27 +107,5 @@ export const createImportCostsColumns = (
         return 'Invalid Date';
       }
     }
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const importCost = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir menú</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => openUpdateDialog(importCost)}>Editar</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => openDialog(importCost)}>Eliminar</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
   }
 ];

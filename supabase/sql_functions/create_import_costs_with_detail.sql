@@ -37,7 +37,7 @@ BEGIN
         optional_expense_3, optional_expense_3_detail,
         optional_expense_4, optional_expense_4_detail,
         optional_expense_5, optional_expense_5_detail,
-        fob_value, total_warehouse_cost, cf_iva, net_total_warehouse_cost
+        fob_value, cif_value, total_warehouse_cost, cf_iva, net_total_warehouse_cost
     )
     VALUES (
         (import_costs_data->>'order_id')::BIGINT,
@@ -100,6 +100,7 @@ BEGIN
         (import_costs_data->>'optional_expense_5')::FLOAT,
         (import_costs_data->>'optional_expense_5_detail')::TEXT,
         (import_costs_data->>'fob_value')::FLOAT,
+        (import_costs_data->>'cif_value')::FLOAT,
         (import_costs_data->>'total_warehouse_cost')::FLOAT,
         (import_costs_data->>'cf_iva')::FLOAT,
         (import_costs_data->>'net_total_warehouse_cost')::FLOAT

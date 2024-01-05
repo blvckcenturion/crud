@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS import_costs (
     
     -- Additional non-nullable rows without details
     fob_value FLOAT NOT NULL,
+    cif_value FLOAT NOT NULL,
     total_warehouse_cost FLOAT NOT NULL,
     cf_iva FLOAT NOT NULL,
     net_total_warehouse_cost FLOAT NOT NULL
