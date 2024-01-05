@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS import_costs (
     id SERIAL PRIMARY KEY,
     order_id BIGINT NOT NULL REFERENCES purchases(id),
-    active BOOLEAN NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS import_costs_detail (
     import_costs_id BIGINT NOT NULL REFERENCES import_costs(id),
     order_id BIGINT NOT NULL REFERENCES purchases(id),
     product_id BIGINT NOT NULL REFERENCES products(id),
-    active BOOLEAN NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     unit_cost FLOAT NOT NULL
