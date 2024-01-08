@@ -71,8 +71,8 @@ export default function ImportCostsPage() {
       <UpdateFormDialogComponent
         isOpen={isUpdateDialogOpen}
         onOpenChange={setIsUpdateDialogOpen}
-        title={"Editar Costo de Importación"}
-        description={"Aquí puedes editar la información del costo de importación. Haz clic en guardar cuando hayas terminado."}
+        title={"Detalles de Costo de Importación"}
+        description={"Aquí puedes ver los detalles de información del costo de importación."}
         formComponent={<ImportCostsForm importCost={selectedImportCost} onOpenChange={() => setIsUpdateDialogOpen(false)} />} />
     </div>
   );

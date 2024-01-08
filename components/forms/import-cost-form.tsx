@@ -16,6 +16,8 @@ import { useState, useEffect } from "react";
 import {
   ImportCostsFormSchema,
   ImportCostsRow,
+  ImportCostsWithDetailsAndProvider,
+  ImportCostsWithDetailsAndProviderSchema,
   InsertImportCostsSchema,
   IntermediateImportCostsReturnSchema,
 
@@ -31,18 +33,19 @@ import { fetchActivePurchasesWithItems, fetchActivePurchasesWithNoCosts } from "
 import { calculateImportCostValues } from "@/lib/services/processing/import-cost";
 
 interface ImportCostsFormProps {
-  importCost?: ImportCostsRow | null; // Optional property for existing import cost data
+  importCost?: ImportCostsWithDetailsAndProvider | null; // Optional property for existing import cost data
   onOpenChange: (isOpen: boolean) => void;
 }
 
 export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormProps) {
+    console.log(importCost)
   const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
     const router = useRouter()
     const form = useForm({
-      resolver: zodResolver(ImportCostsFormSchema),
+      resolver: zodResolver(importCost ? ImportCostsWithDetailsAndProviderSchema : ImportCostsFormSchema ),
       mode: "onChange",
-      defaultValues: {
+      defaultValues: importCost || {
           order_id: 0, // Default value for 'order_id'
           maritime_transportation: 0, // Default value for 'maritime_transportation'
           maritime_transportation_detail: '', // Default value for 'maritime_transportation_detail'
@@ -167,33 +170,52 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="px-2 space-y-8 overflow-y-auto max-h-[80vh]">
-          {/* Order ID Field */}
-                <FormField control={form.control} name="order_id" render={({ field }) => (
-                <FormItem>
-                    <FormLabel htmlFor="order_id">ID de Orden</FormLabel>
-                    <FormControl>
-                    <Select name="order_id" onValueChange={handlePurchaseChange} value={String(field.value)} disabled={isLoadingProducts}>
-                        <SelectTrigger>
-                        <SelectValue placeholder="Seleccione una orden" />
-                        </SelectTrigger>
-                        <SelectContent>
-                        <SelectGroup>
-                            <SelectLabel>Compras Disponibles</SelectLabel>
-                            {purchases?.map(purchase => (
-                            <SelectItem key={purchase.id} value={String(purchase.id)}>ORDER-{purchase.id}</SelectItem>
-                            ))}
-                        </SelectGroup>
-                        <SelectGroup>
-                            <SelectLabel>Más Opciones</SelectLabel>
-                            <SelectItem value="-1">Agregar Más Compras</SelectItem>
-                        </SelectGroup>        
-                        </SelectContent>
-                    </Select>
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}/>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="px-2 space-y-8 overflow-y-auto max-h-[80vh]">
+              {importCost && (
+                  <FormField name="providerName" render={({ field }) => (
+                      <FormItem>
+                          <FormLabel htmlFor="providerName">Proveedor</FormLabel>
+                          <FormControl>
+                              <Input
+                                  id="providerName"
+                                  type="text"
+                                  disabled={importCost ? true : false}  
+                                  value={importCost?.providerName ?? ''} // Valor predeterminado es 0
+                              />
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )} />
+              )}
+
+              {/* Order ID Field */}
+              {!importCost && (
+                  <FormField control={form.control} name="order_id" render={({ field }) => (
+                  <FormItem>
+                      <FormLabel htmlFor="order_id">ID de Orden</FormLabel>
+                      <FormControl>
+                      <Select name="order_id" onValueChange={handlePurchaseChange} value={String(field.value)} disabled={isLoadingProducts}>
+                          <SelectTrigger>
+                          <SelectValue placeholder="Seleccione una orden" />
+                          </SelectTrigger>
+                          <SelectContent>
+                          <SelectGroup>
+                              <SelectLabel>Compras Disponibles</SelectLabel>
+                              {purchases?.map(purchase => (
+                              <SelectItem key={purchase.id} value={String(purchase.id)}>ORDER-{purchase.id}</SelectItem>
+                              ))}
+                          </SelectGroup>
+                          <SelectGroup>
+                              <SelectLabel>Más Opciones</SelectLabel>
+                              <SelectItem value="-1">Agregar Más Compras</SelectItem>
+                          </SelectGroup>        
+                          </SelectContent>
+                      </Select>
+                      </FormControl>
+                      <FormMessage />
+                  </FormItem>
+                  )}/>
+              )}
 
             {/* Maritime Transportation Field */}
             <FormField control={form.control} name="maritime_transportation" render={({ field }) => (
@@ -203,6 +225,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                         <Input
                             id="maritime_transportation"
                             type="number"
+                            disabled={importCost ? true : false}  
                             value={field.value} // Valor predeterminado es 0
                             onChange={(e) => field.onChange(Number(e.target.value))}
                         />
@@ -219,6 +242,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                         <Input
                             id="maritime_transportation_detail"
                             type="text"
+                            disabled={importCost ? true : false}  
                             value={field.value || ''} // Valor predeterminado es una cadena vacía
                             onChange={field.onChange}
                         />
@@ -235,6 +259,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                         <Input
                             id="land_transportation"
                             type="number"
+                            disabled={importCost ? true : false}  
                             value={field.value} // Valor predeterminado es 0
                             onChange={(e) => field.onChange(Number(e.target.value))}
                         />
@@ -251,6 +276,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                         <Input
                             id="land_transportation_detail"
                             type="text"
+                            disabled={importCost ? true : false}  
                             value={field.value || ''} // Valor predeterminado es una cadena vacía
                             onChange={field.onChange}
                         />
@@ -267,6 +293,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="foreign_insurance"
                         type="number"
+                        disabled={importCost ? true : false}  
                         value={field.value} // Valor predeterminado es 0
                         onChange={(e) => field.onChange(Number(e.target.value))}
                     />
@@ -283,6 +310,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="foreign_insurance_detail"
                         type="text"
+                        disabled={importCost ? true : false}  
                         value={field.value || ''} // Valor predeterminado es una cadena vacía
                         onChange={field.onChange}
                     />
@@ -299,6 +327,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="aspb_port_expenses"
                         type="number"
+                        disabled={importCost ? true : false}  
                         value={field.value} // Valor predeterminado es 0
                         onChange={(e) => field.onChange(Number(e.target.value))}
                     />
@@ -315,6 +344,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="aspb_port_expenses_detail"
                         type="text"
+                        disabled={importCost ? true : false}  
                         value={field.value || ''} // Valor predeterminado es una cadena vacía
                         onChange={field.onChange}
                     />
@@ -331,6 +361,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="intermediary_commissions"
                         type="number"
+                        disabled={importCost ? true : false}  
                         value={field.value} // Valor predeterminado es 0
                         onChange={(e) => field.onChange(Number(e.target.value))}
                     />
@@ -347,6 +378,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="intermediary_commissions_detail"
                         type="text"
+                        disabled={importCost ? true : false}  
                         value={field.value || ''} // Valor predeterminado es una cadena vacía
                         onChange={field.onChange}
                     />
@@ -363,6 +395,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="other_expenses_i"
                         type="number"
+                        disabled={importCost ? true : false}  
                         value={field.value} // Valor predeterminado es 0
                         onChange={(e) => field.onChange(Number(e.target.value))}
                     />
@@ -379,13 +412,31 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="other_expenses_i_detail"
                         type="text"
+                        disabled={importCost ? true : false}  
                         value={field.value || ''} // Valor predeterminado es una cadena vacía
                         onChange={field.onChange}
                     />
                 </FormControl>
                 <FormMessage />
             </FormItem>
-        )} />
+              )} />
+              
+              {importCost && (
+                  <FormField name="providerName" render={({ field }) => (
+                      <FormItem>
+                          <FormLabel htmlFor="maritime_transportation">Valor FOB</FormLabel>
+                          <FormControl>
+                              <Input
+                                  id="maritime_transportation"
+                                  type="number"
+                                  disabled={importCost ? true : false}  
+                                  value={importCost?.fob_value ?? 0} // Valor predeterminado es 0
+                              />
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )} />
+              )}
 
         {/* Gravamen Impuesto Consolidado (GAC) Field */}
           <FormField control={form.control} name="consolidated_tax_duty" render={({ field }) => (
@@ -395,6 +446,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="consolidated_tax_duty"
                           type="number"
+                          disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -411,6 +463,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="consolidated_tax_duty_detail"
                           type="text"
+                          disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -427,6 +480,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="value_added_tax_iva"
                           type="number"
+                          disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -443,6 +497,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="value_added_tax_iva_detail"
                           type="text"
+                          disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -459,6 +514,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="specific_consumption_tax_ice"
                           type="number"
+                          disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -475,6 +531,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="specific_consumption_tax_ice_detail"
                           type="text"
+                          disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -491,6 +548,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="other_penalties"
                           type="number"
+                          disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -507,6 +565,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="other_penalties_detail"
                           type="text"
+                          disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -523,6 +582,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="albo_customs_storage"
                         type="number"
+                        disabled={importCost ? true : false}  
                         value={field.value} // Valor predeterminado es 0
                         onChange={(e) => field.onChange(Number(e.target.value))}
                     />
@@ -539,6 +599,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="albo_customs_storage_detail"
                         type="text"
+                        disabled={importCost ? true : false}  
                         value={field.value || ''} // Valor predeterminado es una cadena vacía
                         onChange={field.onChange}
                     />
@@ -555,6 +616,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="albo_customs_logistics"
                         type="number"
+                        disabled={importCost ? true : false}  
                         value={field.value} // Valor predeterminado es 0
                         onChange={(e) => field.onChange(Number(e.target.value))}
                     />
@@ -571,6 +633,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="albo_customs_logistics_detail"
                         type="text"
+                        disabled={importCost ? true : false}  
                         value={field.value || ''} // Valor predeterminado es una cadena vacía
                         onChange={field.onChange}
                     />
@@ -587,6 +650,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="dui_forms"
                         type="number"
+                        disabled={importCost ? true : false}  
                         value={field.value} // Valor predeterminado es 0
                         onChange={(e) => field.onChange(Number(e.target.value))}
                     />
@@ -603,6 +667,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="dui_forms_detail"
                         type="text"
+                        disabled={importCost ? true : false}  
                         value={field.value || ''} // Valor predeterminado es una cadena vacía
                         onChange={field.onChange}
                     />
@@ -619,6 +684,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="djv_forms"
                         type="number"
+                        disabled={importCost ? true : false}  
                         value={field.value} // Valor predeterminado es 0
                         onChange={(e) => field.onChange(Number(e.target.value))}
                     />
@@ -635,6 +701,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="djv_forms_detail"
                         type="text"
+                        disabled={importCost ? true : false}  
                         value={field.value || ''} // Valor predeterminado es una cadena vacía
                         onChange={field.onChange}
                     />
@@ -652,6 +719,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="other_expenses_ii"
                           type="number"
+                          disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -668,6 +736,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="other_expenses_ii_detail"
                           type="text"
+                          disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -684,6 +753,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="chamber_of_commerce"
                           type="number"
+                          disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -700,6 +770,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="chamber_of_commerce_detail"
                           type="text"
+                          disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -716,6 +787,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="senasag"
                           type="number"
+                          disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -732,6 +804,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="senasag_detail"
                           type="text"
+                          disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -748,6 +821,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="custom_agent_commissions"
                           type="number"
+                          disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -764,6 +838,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="custom_agent_commissions_detail"
                           type="text"
+                          disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -780,6 +855,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="financial_commissions"
                           type="number"
+                          disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -796,6 +872,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="financial_commissions_detail"
                           type="text"
+                          disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -812,6 +889,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="other_commissions"
                           type="number"
+                          disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -828,6 +906,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="other_commissions_detail"
                           type="text"
+                          disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -844,6 +923,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="national_transportation"
                           type="number"
+                          disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -860,6 +940,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="national_transportation_detail"
                           type="text"
+                          disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -876,6 +957,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="insurance"
                           type="number"
+                          disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -892,6 +974,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       <Input
                           id="insurance_detail"
                           type="text"
+                          disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -908,6 +991,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="handling_and_storage"
                         type="number"
+                        disabled={importCost ? true : false}  
                         value={field.value} // Valor predeterminado es 0
                         onChange={(e) => field.onChange(Number(e.target.value))}
                     />
@@ -924,6 +1008,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="handling_and_storage_detail"
                         type="text"
+                        disabled={importCost ? true : false}  
                         value={field.value || ''} // Valor predeterminado es una cadena vacía
                         onChange={field.onChange}
                     />
@@ -940,6 +1025,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="other_expenses_iii"
                         type="number"
+                        disabled={importCost ? true : false}  
                         value={field.value} // Valor predeterminado es 0
                         onChange={(e) => field.onChange(Number(e.target.value))}
                     />
@@ -956,6 +1042,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="other_expenses_iii_detail"
                         type="text"
+                        disabled={importCost ? true : false}  
                         value={field.value || ''} // Valor predeterminado es una cadena vacía
                         onChange={field.onChange}
                     />
@@ -971,7 +1058,8 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="optional_expense_1"
-                          type="number"
+                              type="number"
+                              disabled={importCost ? true : false}  
                           value={field.value || 0} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -987,7 +1075,8 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="optional_expense_1_detail"
-                          type="text"
+                              type="text"
+                              disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -1003,7 +1092,8 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="optional_expense_2"
-                          type="number"
+                              type="number"
+                              disabled={importCost ? true : false}  
                           value={field.value || 0} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -1019,7 +1109,8 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="optional_expense_2_detail"
-                          type="text"
+                              type="text"
+                              disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -1035,7 +1126,8 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="optional_expense_3"
-                          type="number"
+                              type="number"
+                              disabled={importCost ? true : false}  
                           value={field.value || 0} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -1051,7 +1143,8 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="optional_expense_3_detail"
-                          type="text"
+                              type="text"
+                              disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -1067,7 +1160,8 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="optional_expense_4"
-                          type="number"
+                              type="number"
+                              disabled={importCost ? true : false}  
                           value={field.value || 0} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -1083,7 +1177,8 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="optional_expense_4_detail"
-                          type="text"
+                        type="text"
+                        disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -1099,7 +1194,8 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="optional_expense_5"
-                          type="number"
+                              type="number"
+                              disabled={importCost ? true : false}  
                           value={field.value || 0} // Valor predeterminado es 0
                           onChange={(e) => field.onChange(Number(e.target.value))}
                       />
@@ -1115,7 +1211,8 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="optional_expense_5_detail"
-                          type="text"
+                        type="text"
+                        disabled={importCost ? true : false}  
                           value={field.value || ''} // Valor predeterminado es una cadena vacía
                           onChange={field.onChange}
                       />
@@ -1132,6 +1229,7 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="total_warehouse_cost"
                         type="number"
+                        disabled={importCost ? true : false}  
                         value={field.value || 0} // Valor predeterminado es 0
                         onChange={(e) => field.onChange(Number(e.target.value))}
                     />
@@ -1148,19 +1246,60 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                     <Input
                         id="cf_iva"
                         type="number"
+                        disabled={importCost ? true : false}      
                         value={field.value || 0} // Valor predeterminado es 0
                         onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                 </FormControl>
                 <FormMessage />
             </FormItem>
-        )} />
+              )} />
+              
+              {importCost && (
+                  <FormField name="net_total_warehouse_cost" render={({ field }) => (
+                      <FormItem>
+                          <FormLabel htmlFor="net_total_warehouse_cost">Costo Total Neto Almacenes</FormLabel>
+                          <FormControl>
+                              <Input
+                                  id="net_total_warehouse_cost"
+                                  type="number"
+                                  disabled={importCost ? true : false}  
+                                  value={importCost?.net_total_warehouse_cost ?? 0} // Valor predeterminado es 0
+                              />
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )} />
+              )}      
+              {importCost && (
+                  <FormField name="unitary_cost" render={({ field }) => (
+                      <FormItem>
+                          <FormLabel htmlFor="unitary_cost">Costo Unitario</FormLabel>
+                          <FormControl>
+                          <div className="overflow-y-auto">
+                                <div className="flex space-x-4 py-2">
+                                {importCost.import_costs_detail?.map((detail, index) => (
+                                    <div key={index} className="bg-white p-4 rounded-lg w-full border">
+                                    <div className="text-sm font-medium text-gray-900">{detail.productName}</div>
+                                    <div className="text-lg font-semibold text-gray-600">${detail.unit_cost}</div>
+                                    </div>
+                                ))}
+                                </div>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )} />
+              )}      
         
             {/* Submit Button */}
+            {!importCost && (
             <Button type="submit" disabled={isLoading}>
                 {isLoading ? <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> : null}
                 {isLoading ? "Guardando..." : "Guardar"}
             </Button>
+                  
+            )}
       </form>
     </Form>
   );

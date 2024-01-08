@@ -1,4 +1,4 @@
-import { MutationFunction, useMutation, UseMutationOptions, useQueryClient } from 'react-query';
+import { MutationFunction, QueryKey, useMutation, UseMutationOptions, useQueryClient } from 'react-query';
 import { useToast } from "@/components/ui/use-toast";
 
 type Action = 'create' | 'update' | 'delete';
@@ -11,7 +11,7 @@ interface ActionMessages {
 }
 
 interface UseSuccessErrorMutationOptions<TData, TError, TVariables, TContext> extends UseMutationOptions<TData, TError, TVariables, TContext> {
-  queryKey: string | unknown[];
+  queryKey: QueryKey | QueryKey[];
   closeDialog?: () => void;
 }
 
@@ -49,7 +49,12 @@ const useSuccessErrorMutation = <TData, TError, TVariables, TContext>(
         variant: "default",
         title: actionMessages[action].success
       });
-      queryClient.invalidateQueries(options.queryKey);
+      // Invalidate multiple queries if queryKey is an array
+      if (Array.isArray(options.queryKey)) {
+        options.queryKey.forEach(key => queryClient.invalidateQueries(key));
+      } else {
+        queryClient.invalidateQueries(options.queryKey);
+      }
       options.closeDialog?.();
       // Call the original onSuccess if it exists
       onSuccess?.(data, variables, context);
