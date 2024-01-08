@@ -24,9 +24,55 @@ export const fetchActivePurchasesWithItems = async (): Promise<PurchaseWithItems
         purchase_items (
           *,
           product:product_id (name)
+        ),
+        provider:provider_id (name)
+      `)
+      .eq('active', true)
+      .order('id', { ascending: true });
+
+    if (error) throw error;
+
+    // Check if data is in the expected format
+    if (!Array.isArray(data)) {
+      throw new Error('Unexpected data format');
+    }
+
+    // Transform purchase_items to include the extended flags
+    const transformedData = data.map((purchase) => ({
+      ...purchase,
+      storageName: purchase.storage?.name,
+      providerName: purchase.provider?.name,
+      purchase_items: purchase.purchase_items?.map((item: any) => ({
+        ...item,
+        isNew: false,
+        isModified: false,
+        isDeleted: false,
+        productName: item.product?.name
+      })) ?? []
+    }));
+
+    return transformedData as PurchaseWithItemsExtended[];
+  } catch (error) {
+    console.error('Error fetching purchases with items:', error);
+    throw error;
+  }
+};
+
+// Function to fetch active purchases with their active items
+export const fetchActivePurchasesWithNoCosts = async (): Promise<PurchaseWithItemsExtended[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('purchases')
+      .select(`
+        *,
+        storage:storage_id (name),
+        purchase_items (
+          *,
+          product:product_id (name)
         )
       `)
       .eq('active', true)
+      .eq('has_import_costs', false)
       .order('id', { ascending: true });
 
     if (error) throw error;
@@ -61,9 +107,6 @@ export const createPurchaseWithItems = async (params: CreatePurchaseWithItemsPar
   const { purchaseData, itemsData } = params;
 
   try {
-    console.log("purchaseData", purchaseData)
-    console.log("itemsData", itemsData)
-
 
     // RPC call to create purchase with items
     // Ensure the parameter names match the expected names in your database function
@@ -139,4 +182,48 @@ export const deletePurchaseWithItems = async (purchaseId: number) => {
       console.error("Error deleting purchase and its items:", error);
       throw error;
     }
+};
+
+// Function to fetch a single active purchase with its active items by purchase ID
+export const fetchActivePurchaseWithItemsById = async (purchaseId: number): Promise<PurchaseWithItemsExtended | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('purchases')
+      .select(`
+        *,
+        storage:storage_id (name),
+        purchase_items (
+          *,
+          product:product_id (name)
+        )
+      `)
+      .eq('active', true)
+      .eq('id', purchaseId)
+      .single(); // Use the .single() method to expect a single row
+
+    if (error) throw error;
+
+    // Check if data is in the expected format
+    if (!data || typeof data !== 'object') {
+      return null; // If no data is found, or the data is not an object, return null
+    }
+
+    // Transform purchase_items to include the extended flags
+    const transformedData = {
+      ...data,
+      storageName: data.storage?.name,
+      purchase_items: data.purchase_items?.map((item: any) => ({
+        ...item,
+        isNew: false,
+        isModified: false,
+        isDeleted: false,
+        productName: item.product?.name
+      })) ?? []
+    };
+
+    return transformedData as PurchaseWithItemsExtended;
+  } catch (error) {
+    console.error('Error fetching purchase with items by ID:', error);
+    throw error;
+  }
 };

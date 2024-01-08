@@ -16,6 +16,8 @@ import { useState, useEffect } from "react";
 import {
   ImportCostsFormSchema,
   ImportCostsRow,
+  InsertImportCostsSchema,
+  IntermediateImportCostsReturnSchema,
 
 } from "@/lib/schemas/import-cost";
 import { addNewImportCost } from "@/lib/services/supabase/import-cost";
@@ -25,7 +27,8 @@ import { ReloadIcon } from "@radix-ui/react-icons";
 import { fetchActiveProviders } from "@/lib/services/supabase/provider";
 import { useQuery } from "react-query";
 import { useRouter } from "next/navigation";
-import { fetchActivePurchasesWithItems } from "@/lib/services/supabase/purchase";
+import { fetchActivePurchasesWithItems, fetchActivePurchasesWithNoCosts } from "@/lib/services/supabase/purchase";
+import { calculateImportCostValues } from "@/lib/services/processing/import-cost";
 
 interface ImportCostsFormProps {
   importCost?: ImportCostsRow | null; // Optional property for existing import cost data
@@ -105,14 +108,14 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
   });
 
     // Queries
-    const { data: purchases, isLoading: isLoadingProducts} = useQuery("purchases", fetchActivePurchasesWithItems)
+    const { data: purchases, isLoading: isLoadingProducts} = useQuery("purchases", fetchActivePurchasesWithNoCosts)
     
   // Mutations
   const addMutation = useSuccessErrorMutation(
     addNewImportCost,
     'Costo de Importación',
     'create',
-    { queryKey: ['import-costs'] }
+    { queryKey: ['import-costs', 'purchases'] }
   );
     
   const handlePurchaseChange = (value: string) => {
@@ -124,22 +127,41 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
     }
   };
 
-  async function onSubmit(data: any) {
+  async function onSubmit(data: ImportCostsFormSchema) {
     try {
-      console.log('aaa')
+        setIsLoading(true);
+        
+        const selectedPurchase = purchases?.find(purchase => purchase.id === data.order_id);
 
-      setIsLoading(true);
-      if (importCost && importCost.id) {
-        // If updating an existing import cost
-        console.log('update')
-      } else {
-        // If adding a new import cost
-        console.log(data)
-      }
-      setIsLoading(false);
-      onOpenChange(false);
+        if (!selectedPurchase) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "La compra seleccionada no es valida."
+            })
+            return;
+        }
+        
+        const values: IntermediateImportCostsReturnSchema = await calculateImportCostValues(data)
+        const mappedData: InsertImportCostsSchema = {
+            ...data,
+            fob_value: values.fob_value,
+            cif_value: values.cif_value,
+            net_total_warehouse_cost: values.net_total_warehouse_cost
+        }
+
+        const mappedDetails = values.import_cost_details
+
+        addMutation.mutate({
+            importCosts: mappedData,
+            details: mappedDetails
+        })
+        
+        onOpenChange(false);
     } catch (error) {
-      console.error("Error in onSubmit function:", error);
+        console.error("Error in onSubmit function:", error);
+    } finally {
+        setIsLoading(false);
     }
   }
 

@@ -30,43 +30,214 @@ export interface Database {
       }
       import_costs: {
         Row: {
-          additional_costs: number
-          additional_notes: string
+          active: boolean
+          albo_customs_logistics: number
+          albo_customs_logistics_detail: string | null
+          albo_customs_storage: number
+          albo_customs_storage_detail: string | null
+          aspb_port_expenses: number
+          aspb_port_expenses_detail: string | null
+          cf_iva: number
+          chamber_of_commerce: number
+          chamber_of_commerce_detail: string | null
+          cif_value: number
+          consolidated_tax_duty: number
+          consolidated_tax_duty_detail: string | null
+          created_at: string
+          custom_agent_commissions: number
+          custom_agent_commissions_detail: string | null
+          djv_forms: number
+          djv_forms_detail: string | null
+          dui_forms: number
+          dui_forms_detail: string | null
+          financial_commissions: number
+          financial_commissions_detail: string | null
           fob_value: number
+          foreign_insurance: number
+          foreign_insurance_detail: string | null
+          handling_and_storage: number
+          handling_and_storage_detail: string | null
           id: number
-          import_date: string
-          land_transport_cost: number | null
-          maritime_transport_cost: number | null
-          net_value: number
+          insurance: number
+          insurance_detail: string | null
+          intermediary_commissions: number
+          intermediary_commissions_detail: string | null
+          land_transportation: number
+          land_transportation_detail: string | null
+          maritime_transportation: number
+          maritime_transportation_detail: string | null
+          national_transportation: number
+          national_transportation_detail: string | null
+          net_total_warehouse_cost: number
+          optional_expense_1: number | null
+          optional_expense_1_detail: string | null
+          optional_expense_2: number | null
+          optional_expense_2_detail: string | null
+          optional_expense_3: number | null
+          optional_expense_3_detail: string | null
+          optional_expense_4: number | null
+          optional_expense_4_detail: string | null
+          optional_expense_5: number | null
+          optional_expense_5_detail: string | null
           order_id: number
-          provider_id: number
-          tax_iva: number
+          other_commissions: number
+          other_commissions_detail: string | null
+          other_expenses_i: number
+          other_expenses_i_detail: string | null
+          other_expenses_ii: number
+          other_expenses_ii_detail: string | null
+          other_expenses_iii: number
+          other_expenses_iii_detail: string | null
+          other_penalties: number
+          other_penalties_detail: string | null
+          senasag: number
+          senasag_detail: string | null
+          specific_consumption_tax_ice: number
+          specific_consumption_tax_ice_detail: string | null
+          total_warehouse_cost: number
+          updated_at: string
+          value_added_tax_iva: number
+          value_added_tax_iva_detail: string | null
         }
         Insert: {
-          additional_costs: number
-          additional_notes: string
+          active?: boolean
+          albo_customs_logistics: number
+          albo_customs_logistics_detail?: string | null
+          albo_customs_storage: number
+          albo_customs_storage_detail?: string | null
+          aspb_port_expenses: number
+          aspb_port_expenses_detail?: string | null
+          cf_iva: number
+          chamber_of_commerce: number
+          chamber_of_commerce_detail?: string | null
+          cif_value: number
+          consolidated_tax_duty: number
+          consolidated_tax_duty_detail?: string | null
+          created_at?: string
+          custom_agent_commissions: number
+          custom_agent_commissions_detail?: string | null
+          djv_forms: number
+          djv_forms_detail?: string | null
+          dui_forms: number
+          dui_forms_detail?: string | null
+          financial_commissions: number
+          financial_commissions_detail?: string | null
           fob_value: number
+          foreign_insurance: number
+          foreign_insurance_detail?: string | null
+          handling_and_storage: number
+          handling_and_storage_detail?: string | null
           id?: number
-          import_date: string
-          land_transport_cost?: number | null
-          maritime_transport_cost?: number | null
-          net_value: number
+          insurance: number
+          insurance_detail?: string | null
+          intermediary_commissions: number
+          intermediary_commissions_detail?: string | null
+          land_transportation: number
+          land_transportation_detail?: string | null
+          maritime_transportation: number
+          maritime_transportation_detail?: string | null
+          national_transportation: number
+          national_transportation_detail?: string | null
+          net_total_warehouse_cost: number
+          optional_expense_1?: number | null
+          optional_expense_1_detail?: string | null
+          optional_expense_2?: number | null
+          optional_expense_2_detail?: string | null
+          optional_expense_3?: number | null
+          optional_expense_3_detail?: string | null
+          optional_expense_4?: number | null
+          optional_expense_4_detail?: string | null
+          optional_expense_5?: number | null
+          optional_expense_5_detail?: string | null
           order_id: number
-          provider_id: number
-          tax_iva: number
+          other_commissions: number
+          other_commissions_detail?: string | null
+          other_expenses_i: number
+          other_expenses_i_detail?: string | null
+          other_expenses_ii: number
+          other_expenses_ii_detail?: string | null
+          other_expenses_iii: number
+          other_expenses_iii_detail?: string | null
+          other_penalties: number
+          other_penalties_detail?: string | null
+          senasag: number
+          senasag_detail?: string | null
+          specific_consumption_tax_ice: number
+          specific_consumption_tax_ice_detail?: string | null
+          total_warehouse_cost: number
+          updated_at?: string
+          value_added_tax_iva: number
+          value_added_tax_iva_detail?: string | null
         }
         Update: {
-          additional_costs?: number
-          additional_notes?: string
+          active?: boolean
+          albo_customs_logistics?: number
+          albo_customs_logistics_detail?: string | null
+          albo_customs_storage?: number
+          albo_customs_storage_detail?: string | null
+          aspb_port_expenses?: number
+          aspb_port_expenses_detail?: string | null
+          cf_iva?: number
+          chamber_of_commerce?: number
+          chamber_of_commerce_detail?: string | null
+          cif_value?: number
+          consolidated_tax_duty?: number
+          consolidated_tax_duty_detail?: string | null
+          created_at?: string
+          custom_agent_commissions?: number
+          custom_agent_commissions_detail?: string | null
+          djv_forms?: number
+          djv_forms_detail?: string | null
+          dui_forms?: number
+          dui_forms_detail?: string | null
+          financial_commissions?: number
+          financial_commissions_detail?: string | null
           fob_value?: number
+          foreign_insurance?: number
+          foreign_insurance_detail?: string | null
+          handling_and_storage?: number
+          handling_and_storage_detail?: string | null
           id?: number
-          import_date?: string
-          land_transport_cost?: number | null
-          maritime_transport_cost?: number | null
-          net_value?: number
+          insurance?: number
+          insurance_detail?: string | null
+          intermediary_commissions?: number
+          intermediary_commissions_detail?: string | null
+          land_transportation?: number
+          land_transportation_detail?: string | null
+          maritime_transportation?: number
+          maritime_transportation_detail?: string | null
+          national_transportation?: number
+          national_transportation_detail?: string | null
+          net_total_warehouse_cost?: number
+          optional_expense_1?: number | null
+          optional_expense_1_detail?: string | null
+          optional_expense_2?: number | null
+          optional_expense_2_detail?: string | null
+          optional_expense_3?: number | null
+          optional_expense_3_detail?: string | null
+          optional_expense_4?: number | null
+          optional_expense_4_detail?: string | null
+          optional_expense_5?: number | null
+          optional_expense_5_detail?: string | null
           order_id?: number
-          provider_id?: number
-          tax_iva?: number
+          other_commissions?: number
+          other_commissions_detail?: string | null
+          other_expenses_i?: number
+          other_expenses_i_detail?: string | null
+          other_expenses_ii?: number
+          other_expenses_ii_detail?: string | null
+          other_expenses_iii?: number
+          other_expenses_iii_detail?: string | null
+          other_penalties?: number
+          other_penalties_detail?: string | null
+          senasag?: number
+          senasag_detail?: string | null
+          specific_consumption_tax_ice?: number
+          specific_consumption_tax_ice_detail?: string | null
+          total_warehouse_cost?: number
+          updated_at?: string
+          value_added_tax_iva?: number
+          value_added_tax_iva_detail?: string | null
         }
         Relationships: [
           {
@@ -75,12 +246,50 @@ export interface Database {
             isOneToOne: false
             referencedRelation: "purchases"
             referencedColumns: ["id"]
+          }
+        ]
+      }
+      import_costs_detail: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: number
+          import_costs_id: number
+          product_id: number
+          unit_cost: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: number
+          import_costs_id: number
+          product_id: number
+          unit_cost: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: number
+          import_costs_id?: number
+          product_id?: number
+          unit_cost?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_costs_detail_import_costs_id_fkey"
+            columns: ["import_costs_id"]
+            isOneToOne: false
+            referencedRelation: "import_costs"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "import_costs_provider_id_fkey"
-            columns: ["provider_id"]
+            foreignKeyName: "import_costs_detail_product_id_fkey"
+            columns: ["product_id"]
             isOneToOne: false
-            referencedRelation: "providers"
+            referencedRelation: "products"
             referencedColumns: ["id"]
           }
         ]
@@ -176,27 +385,60 @@ export interface Database {
       providers: {
         Row: {
           active: boolean
+          address: string | null
+          city: string | null
+          contact_person: string | null
           country_id: number
           created_at: string
+          email: string | null
+          fax: string | null
           id: number
+          location: string | null
           name: string
+          nit: string | null
+          payment: number
+          phones: string | null
+          social_reason: string | null
           updated_at: string
+          website: string | null
         }
         Insert: {
           active?: boolean
+          address?: string | null
+          city?: string | null
+          contact_person?: string | null
           country_id: number
           created_at?: string
+          email?: string | null
+          fax?: string | null
           id?: number
+          location?: string | null
           name?: string
+          nit?: string | null
+          payment: number
+          phones?: string | null
+          social_reason?: string | null
           updated_at?: string
+          website?: string | null
         }
         Update: {
           active?: boolean
+          address?: string | null
+          city?: string | null
+          contact_person?: string | null
           country_id?: number
           created_at?: string
+          email?: string | null
+          fax?: string | null
           id?: number
+          location?: string | null
           name?: string
+          nit?: string | null
+          payment?: number
+          phones?: string | null
+          social_reason?: string | null
           updated_at?: string
+          website?: string | null
         }
         Relationships: [
           {
@@ -260,7 +502,9 @@ export interface Database {
         Row: {
           active: boolean
           created_at: string
+          has_import_costs: boolean
           id: number
+          provider_id: number | null
           storage_id: number | null
           type: number
           updated_at: string
@@ -268,7 +512,9 @@ export interface Database {
         Insert: {
           active: boolean
           created_at?: string
+          has_import_costs?: boolean
           id?: number
+          provider_id?: number | null
           storage_id?: number | null
           type: number
           updated_at?: string
@@ -276,12 +522,21 @@ export interface Database {
         Update: {
           active?: boolean
           created_at?: string
+          has_import_costs?: boolean
           id?: number
+          provider_id?: number | null
           storage_id?: number | null
           type?: number
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "purchases_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "purchases_storage_id_fkey"
             columns: ["storage_id"]
@@ -299,6 +554,7 @@ export interface Database {
           created_at: string
           id: number
           name: string
+          phones: string | null
           responsible: string
           updated_at: string
         }
@@ -309,6 +565,7 @@ export interface Database {
           created_at?: string
           id?: number
           name: string
+          phones?: string | null
           responsible: string
           updated_at?: string
         }
@@ -319,6 +576,7 @@ export interface Database {
           created_at?: string
           id?: number
           name?: string
+          phones?: string | null
           responsible?: string
           updated_at?: string
         }
@@ -329,6 +587,13 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
+      create_import_costs_with_details: {
+        Args: {
+          import_costs_data: Json
+          import_costs_details_data: Json[]
+        }
+        Returns: undefined
+      }
       create_purchase_with_items: {
         Args: {
           purchase_data: Json

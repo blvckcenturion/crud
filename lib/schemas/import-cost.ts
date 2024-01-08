@@ -79,7 +79,7 @@ export const ImportCostsDetailRowSchema = z.object({
   product_id: z.number(),
   productName: z.string(),
   import_costs_id: z.number(),
-  unit_costs: z.number(),
+  unit_cost: z.number(),
 })
 
 // Type for retrieval
@@ -100,18 +100,19 @@ export const InsertImportCostsSchema = ImportCostsRowSchema.omit({
   updated_at: true
 });
 
+export type InsertImportCostsSchema = z.infer<typeof InsertImportCostsSchema>
+
 export const InsertImportCostsDetailSchema = ImportCostsDetailRowSchema.omit({
   id: true,
   active: true,
   created_at: true,
-  updated_at: true
-}).extend({
-  product_id: z.number(),
-  unit_costs: z.number()
-});
+  updated_at: true,
+  productName: true,
+  import_costs_id: true
+})
 
 
-
+export type InsertImportCostsDetailSchema = z.infer<typeof InsertImportCostsDetailSchema>;
 
 // to pass to the function that will calculate the final values
 export const ImportCostsFormSchema = ImportCostsRowSchema.omit({
@@ -124,16 +125,26 @@ export const ImportCostsFormSchema = ImportCostsRowSchema.omit({
   net_total_warehouse_cost: true
 });
 
+export type ImportCostsFormSchema = z.infer<typeof ImportCostsFormSchema>;
+
 export const ImportCostsDetailFormSchema = z.object({
   product_id: z.number(),
   qty: z.number(),
-  unitary_price: z.number()
+  unitary_price: z.number(),
+  coefficient_value: z.number()
 })
+
+export type ImportCostsDetailFormSchema = z.infer<typeof ImportCostsDetailFormSchema>;
 
 // Step 1
 // Calculate FOB
 // You calculate the FOB by summing all the ImportCostsDetailFormSchemas 
 // FOB = SUM(ImportCostsDetailFormSchema(qty * unitary_price))
+
+// 1.1 Calculate the distribution coefficient for each item
+// coefficient_item_1 = subtotal_1 / FOB
+// coefficient_item_2 = subtotal_2 / FOB
+// coefficient_item_3 = subtotal_3 / FOB
 
 // Step 2
 // Calculate CIF
@@ -146,10 +157,6 @@ export const ImportCostsDetailFormSchema = z.object({
 // Step 4
 // Calculate Unitary costs
 
-// 4.1 Calculate the distribution coefficient for each item
-// coefficient_item_1 = subtotal_1 / FOB
-// coefficient_item_2 = subtotal_2 / FOB
-// coefficient_item_3 = subtotal_3 / FOB
 
 // 4.2 Calculate Unitary costs
 // unitary_cost_item_1 = coefficient_item_1 * NTWC
@@ -157,12 +164,27 @@ export const ImportCostsDetailFormSchema = z.object({
 // unitary_cost_item_3 = coefficient_item_3 * NTWC
 
 // For calculation results
+export const IntermediateImportCostsDetailReturnSchema = z.object({
+  product_id: z.number(),
+  unit_costs: z.number()
+})
+
 export const IntermediateImportCostsReturnSchema = z.object({
   fob_value: z.number(),
   cif_value: z.number(),
-  net_total_warehouse_cost: z.number()
+  net_total_warehouse_cost: z.number(),
+  import_cost_details: z.array(InsertImportCostsDetailSchema)
 });
 
-export const IntermediateImportCostsDetailReturnSchema = z.object({
-  unit_costs: z.number()
-})
+export type IntermediateImportCostsReturnSchema = z.infer<typeof IntermediateImportCostsReturnSchema>;
+
+// Schema to represent import costs with details and provider's name
+export const ImportCostsWithDetailsAndProviderSchema = ImportCostsRowSchema.extend({
+  import_costs_detail: z.array(ImportCostsDetailRowSchema.extend({
+    productName: z.string().optional()
+  })).optional(),
+  providerName: z.string().optional()
+});
+
+// Update TypeScript types
+export type ImportCostsWithDetailsAndProvider = z.infer<typeof ImportCostsWithDetailsAndProviderSchema>;

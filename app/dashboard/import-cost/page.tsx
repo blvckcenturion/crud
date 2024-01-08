@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { Spinner, Stack } from "@chakra-ui/react";
-import { ImportCostsRow, ImportCostsInsertSchema, ImportCostsUpdateSchema } from "@/lib/schemas/import-cost";
+import { ImportCostsRow } from "@/lib/schemas/import-cost";
 import { DataTable } from "@/components/ui/data-table/data-table";
 import { deactivateImportCost, fetchActiveImportCosts } from "@/lib/services/supabase/import-cost";
 import useSuccessErrorMutation from "@/lib/mutations";

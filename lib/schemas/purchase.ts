@@ -10,6 +10,9 @@ export const PurchaseSchema = z.object({
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
   storage_id: z.number().nullable(),
+  provider_id: z.number().refine(type => type !== undefined && type !== null, {
+    message: "El proveedor de compra es obligatorio."
+  }),
   type: PurchaseTypeEnum.refine(type => type !== undefined && type !== null, {
     message: "El tipo de compra es obligatorio."
   })
@@ -69,7 +72,8 @@ export const PurchaseWithItemsSchema = PurchaseSchema.extend({
 // Extended Schema for Front-End Use including productName
 export const PurchaseWithItemsExtendedSchema = PurchaseSchema.extend({
   purchase_items: z.array(PurchaseItemExtendedSchema).optional(),
-  storageName: z.string().optional().nullable()
+  storageName: z.string().optional().nullable(),
+  providerName: z.string().optional().nullable()
 });
 
 export type PurchaseWithItems = z.infer<typeof PurchaseWithItemsSchema>;

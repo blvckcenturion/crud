@@ -152,8 +152,6 @@ export const createProductColumns = (openDialog: (product: ProductWithProvider) 
   {
     id: "actions",
       cell: ({ row }) => {
-        const payment = row.original
-    
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

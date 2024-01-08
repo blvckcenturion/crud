@@ -29,16 +29,6 @@ const ProductSelectorComponent: React.FC<ProductSelectorProps> = ({ selectedProd
         if (selectedProductId !== null) {
             const product = products.find(p => p.id === selectedProductId);
             if (product && product.id !== undefined) {
-
-                if (!Number.isInteger(quantity)) {
-                    toast({
-                      variant: "destructive",
-                      title: "Error",
-                      description: "La cantidad debe ser un número entero.",
-                    });
-                    return;
-                }
-                
                 
                 if (quantity <= 0) {
                     toast({

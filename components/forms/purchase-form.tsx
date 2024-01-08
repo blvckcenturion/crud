@@ -36,6 +36,7 @@ import ProductSelectorComponent from '../product-selector';
 import { useToast } from '../ui/use-toast';
 import useSuccessErrorMutation from '@/lib/mutations';
 import { createPurchaseWithItems, updatePurchaseWithItems } from '@/lib/services/supabase/purchase';
+import { fetchActiveProviders } from '@/lib/services/supabase/provider';
 
 
 interface PurchaseFormProps {
@@ -56,7 +57,8 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({ purchase, onOpenChan
       defaultValues: {
         type: convertedType, // Use the converted type here
         storage_id: purchase?.storage_id || null,
-        purchase_items: purchase?.purchase_items || []
+        purchase_items: purchase?.purchase_items || [],
+        provider_id: purchase?.provider_id || 0
       },
     });
 
@@ -78,6 +80,7 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({ purchase, onOpenChan
   // Queries 
   const { data: products, isLoading: isLoadingProducts } = useQuery("products", fetchActiveProducts)
   const { data: storages, isLoading: isLoadingStorages } = useQuery("storages", fetchActiveStorage)
+  const { data: providers, isLoading: isLoadingProviders } = useQuery("providers", fetchActiveProviders)
 
   // Helper functions
   const { fields, append, remove } = useFieldArray({
@@ -106,8 +109,6 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({ purchase, onOpenChan
       });
       return;
     }
-    
-    console.log(data.type)
 
     // Map type to its numerical value
     const mappedPurchaseData = {
@@ -158,6 +159,15 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({ purchase, onOpenChan
     } else {
       form.setValue("storage_id", value === "null" ? null : Number(value));
     }
+  };
+
+  // Handle provider selection change
+  const handleProviderChange = (value: string) => {
+    const providerId = value === "null" ? null : Number(value);
+
+    form.setValue("provider_id", value === "null" ? 0 : Number(value))
+
+    setSelectedProducts([]); // Reset selected products
   };
 
   // Effects 
@@ -229,12 +239,40 @@ export const PurchaseForm: React.FC<PurchaseFormProps> = ({ purchase, onOpenChan
           )} />
         )}
 
-        {/* Product Selector Component */}
+        {/* Provider Field */}
+        <FormField control={form.control} name="provider_id" render={({ field }) => (
+          <FormItem>
+            <FormLabel htmlFor="provider_id">Proveedor</FormLabel>
+            <FormControl>
+              <Select name="provider_id" onValueChange={handleProviderChange} value={String(field.value)} disabled={isLoadingProviders}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccione un proveedor" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Proveedores Existentes</SelectLabel>
+                    {providers?.map(provider => (
+                      <SelectItem key={provider.id} value={String(provider.id)}>{provider.name}</SelectItem>
+                    ))}
+                  </SelectGroup>
+                  <SelectGroup>
+                    <SelectLabel>Mas Opciones</SelectLabel>
+                    <SelectItem value="null">Sin Proveedor</SelectItem>
+                    <SelectItem value="-1">Agregar Mas Proveedores</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )} />
+
+        {/* Product Selector Component with Provider Filter */}
         <ProductSelectorComponent
           selectedProducts={selectedProducts}
           setSelectedProducts={setSelectedProducts}
-          products={products || []} // Ensure this is loaded with product data
-          purchaseId={purchase?.id} // Pass purchase ID if updating
+          products={products?.filter(product => product.provider_id === form.getValues("provider_id")) || []}
+          purchaseId={purchase?.id}
         />
 
         {/* Submit Button */}

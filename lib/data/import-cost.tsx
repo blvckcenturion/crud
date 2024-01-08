@@ -1,7 +1,7 @@
 // importCostsColumns.ts
 
 import { Button } from "@/components/ui/button";
-import { ImportCostsRow } from "../schemas/import-cost"; // Adjust the import path to your import cost schema
+import { ImportCostsRow, ImportCostsWithDetailsAndProvider } from "../schemas/import-cost"; // Adjust the import path to your import cost schema
 
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
@@ -15,10 +15,24 @@ import {
 import { format, parseISO } from 'date-fns';
 import { Checkbox } from "@/components/ui/checkbox";
 
+const formatBOB = (value: number) => `$${value.toFixed(2)} BOB`;
+
+// Function to render unit costs details
+const renderCostUnitarios = (details: any[]) => (
+  <ul>
+    {details.map((detail, index) => (
+      <li key={index} className="font-semibold">
+        {detail.productName}: {formatBOB(detail.unit_cost)}
+      </li>
+    ))}
+  </ul>
+);
+
+
 export const createImportCostsColumns = (
   openDialog: (importCost: ImportCostsRow) => void, 
   openUpdateDialog: (importCost: ImportCostsRow) => void
-): ColumnDef<ImportCostsRow>[] => [
+): ColumnDef<ImportCostsWithDetailsAndProvider>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -57,11 +71,20 @@ export const createImportCostsColumns = (
     {
     accessorKey: "cif_value",
     header: "Total Valor CIF"  
-  },
+    },
+  {
+    accessorKey: "providerName",
+    header: "Proveedor"
+  }, 
   {
   accessorKey: "net_total_warehouse_cost",
   header: "Costo total Almacenes"  
-},
+    },
+    {
+      id: "costos_unitarios",
+      header: "Costos Unitarios",
+      cell: ({ row }) => renderCostUnitarios(row.original.import_costs_detail || [])
+    },  
   {
     accessorKey: "created_at",
     header: ({ column }) => (
@@ -107,5 +130,24 @@ export const createImportCostsColumns = (
         return 'Invalid Date';
       }
     }
+  },
+  {
+    id: "actions",
+      cell: ({ row }) => {
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Abrir menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => openUpdateDialog(row.original)}>Ver Detalles</DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    },
   }
 ];
