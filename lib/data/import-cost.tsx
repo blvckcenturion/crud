@@ -15,7 +15,7 @@ import {
 import { format, parseISO } from 'date-fns';
 import { Checkbox } from "@/components/ui/checkbox";
 
-const formatBOB = (value: number) => `$${value.toFixed(2)} USD`;
+const formatBOB = (value: number) => `$${value.toFixed(2)} BOB`;
 
 // Function to render unit costs details
 const renderCostUnitarios = (details: any[]) => (
@@ -70,7 +70,8 @@ export const createImportCostsColumns = (
     },
     {
     accessorKey: "cif_value",
-    header: "Total Valor CIF"  
+      header: "Total Valor CIF",
+    cell: ({row}) => formatBOB(row.original.cif_value)
     },
   {
     accessorKey: "providerName",
@@ -78,7 +79,8 @@ export const createImportCostsColumns = (
   }, 
   {
   accessorKey: "net_total_warehouse_cost",
-  header: "Costo total Neto Almacenes"  
+    header: "Costo total Neto Almacenes",
+    cell: ({row}) => formatBOB(row.original.net_total_warehouse_cost)
     },
     {
       id: "costos_unitarios",

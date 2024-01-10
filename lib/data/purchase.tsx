@@ -14,7 +14,7 @@ import { format, parseISO } from 'date-fns';
 import { Checkbox } from "@/components/ui/checkbox";
 import { PurchaseWithItemsExtended, PurchaseTypeEnum, PurchaseTypeReverseMapping } from "../schemas/purchase";
 
-const formatUSD = (value: number) => `$${value.toFixed(2)} USD`;
+const formatUSD = (value: number) => `$${value.toFixed(2)} BOB`;
 
 const renderPurchaseItemsDetails = (items: any[]) => (
   <ul>

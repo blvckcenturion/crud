@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { format, parseISO } from 'date-fns';
 import { Checkbox } from "@/components/ui/checkbox";
+import validUrl from 'valid-url';
 
 export const createStorageColumns = (
   openDialog: (storage: StorageRow) => void, 
@@ -74,7 +75,34 @@ export const createStorageColumns = (
   {
     accessorKey: "responsible",
     header: "Responsable"
-  },
+    },
+    {
+      accessorKey: "location_url",
+      header: "URL de ubicacion",
+      cell: ({ row }) => {
+        const text = row.original.location_url;
+        const parts = text?.split(' '); // Split the text into parts
+        return (
+          <span>
+            {parts?.map((part, index) => {
+              if (validUrl.isUri(part)) {
+                return (
+                  <span key={index}>
+                    <a href={part} className="hover:underline font-bold">{part}</a>{' '}
+                  </span>
+                ); // Render valid URLs as links with underline and bold
+              } else {
+                return <span key={index}>{part} </span>; // Render the rest of the text as regular with space
+              }
+            })}
+          </span>
+        );
+      }
+    },
+    {
+      accessorKey: "comment",
+      header: "Comentario"
+    },
   {
     accessorKey: "created_at",
     header: ({ column }) => (

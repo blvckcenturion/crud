@@ -17,6 +17,8 @@ export const StorageRowSchema = z.object({
   name: z.string().trim().min(1, "El nombre es obligatorio."),
   responsible: z.string().trim().min(1, "El responsable es obligatorio."),
   phones: z.string().nullable(),
+  location_url: z.string().nullable(),
+  comment: z.string().nullable(),
   updated_at: z.string()
 });
 

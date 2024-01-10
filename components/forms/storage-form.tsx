@@ -42,7 +42,9 @@ export function StorageForm({ storage, onOpenChange }: StorageFormProps) {
       address: '',
       branch: undefined,
       responsible: '',
-      phones: ''
+      phones: '',
+      location_url: '',
+      comment:''
     },
   });
 
@@ -162,6 +164,36 @@ export function StorageForm({ storage, onOpenChange }: StorageFormProps) {
               <FormLabel htmlFor="phones">Teléfonos</FormLabel>
               <FormControl>
                 <Input {...field} id="phones" name="phones" autoComplete="tel" value={field.value || ''} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Location URL Field */}
+        <FormField
+          control={form.control}
+          name="location_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="location_url">URL de ubicacion</FormLabel>
+              <FormControl>
+                <Input {...field} id="location_url" name="location_url" autoComplete="tel" value={field.value || ''} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Comment Field */}
+        <FormField
+          control={form.control}
+          name="comment"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel htmlFor="comment">Comentario</FormLabel>
+              <FormControl>
+                <Input {...field} id="comment" name="comment" autoComplete="tel" value={field.value || ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
