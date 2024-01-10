@@ -235,7 +235,7 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
         name="alias"
         render={({ field }) => (
           <FormItem>
-            <FormLabel htmlFor="alias">Alias</FormLabel>
+            <FormLabel htmlFor="alias">Lote</FormLabel>
             <FormControl>
             <Input {...field} id="alias" name="alias" value={field.value || ''} autoComplete="alias" />
             </FormControl>
@@ -290,7 +290,7 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
         {/* Class Field */}
         <FormField control={form.control} name="class" render={({ field }) => (
           <FormItem>
-            <FormLabel htmlFor="class">Clase</FormLabel>
+            <FormLabel htmlFor="class">Linea</FormLabel>
             <FormControl>
               <Select name="class" onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger>
