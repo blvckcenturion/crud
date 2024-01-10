@@ -24,6 +24,8 @@ export const ProductSchema = z.object({
   type: TypeEnum.optional().refine(val => val !== undefined, {
     message: "El tipo es obligatorio."
   }),
+  min_stock: z.number().refine(val => val >= 0, { message: "Cantidad minima de stock debe ser un valor positivo." }),
+  max_stock: z.number().refine(val => val >= 0, { message: "Cantidad maxima de stock debe ser un valor positivo." }),
   provider_id: z.number().nullable().optional(),
   image_url: z.string().trim().nullable().optional(),
 });

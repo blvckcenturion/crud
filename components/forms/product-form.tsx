@@ -66,7 +66,9 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
       format: undefined,
       type: undefined,
       provider_id: null,
-      image_url: ''
+      image_url: '',
+      min_stock: 0,
+      max_stock: 0
     }
   });
 
@@ -346,6 +348,39 @@ export function ProductForm({ product, onOpenChange }: ProductFormProps) {
           <FormMessage />
         </FormItem>
         )} />
+
+        {/* Min Stock Field */}
+        <FormField control={form.control} name="min_stock" render={({ field }) => (
+            <FormItem>
+                <FormLabel htmlFor="min_stock">Cantidad Minima de Stock</FormLabel>
+                <FormControl>
+                    <Input
+                        id="min_stock"
+                        type="number"
+                        value={field.value} // Valor predeterminado es 0
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        )} />
+
+        {/* Max Stock Field */}
+        <FormField control={form.control} name="max_stock" render={({ field }) => (
+            <FormItem>
+                <FormLabel htmlFor="max_stock">Cantidad Maxima de Stock</FormLabel>
+                <FormControl>
+                    <Input
+                        id="max_stock"
+                        type="number"
+                        value={field.value} // Valor predeterminado es 0
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+        )} />
+
 
         {/* Submit Button */}
         <Button disabled={isLoading}>

@@ -59,7 +59,7 @@ export default function PurchasePage() {
         <DataTable
           data={data ?? []}
           columns={columns}
-          filterColumnId="type"
+          filterColumnId="id"
           collectionName="compra"
           formComponent={<PurchaseForm onOpenChange={setIsFormOpen} />}
           onFormOpenChange={setIsFormOpen}

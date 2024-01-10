@@ -77,7 +77,7 @@ export const createProductColumns = (openDialog: (product: ProductWithProvider) 
   },
   {
     accessorKey: "alias",
-    header: "Alias"
+    header: "Lote"
   },
     {
         accessorKey: "description",
@@ -90,7 +90,7 @@ export const createProductColumns = (openDialog: (product: ProductWithProvider) 
   },
   {
     accessorKey: "class",
-    header: "Clase",
+    header: "Linea",
     cell: ({ row }) => getEnumLabel("class", row.original.class || '')
   },
   {
@@ -102,6 +102,14 @@ export const createProductColumns = (openDialog: (product: ProductWithProvider) 
     accessorKey: "type",
     header: "Tipo",
     cell: ({ row }) => getEnumLabel("type", row.original.type || '')
+  },
+  {
+    accessorKey: "min_stock",
+    header: "Cantidad Minima Stock"
+  },
+  {
+    accessorKey: "max_stock",
+    header: "Cantidad Minima Stock"
   },
   {
     accessorKey: "created_at",
