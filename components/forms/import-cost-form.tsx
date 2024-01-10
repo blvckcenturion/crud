@@ -180,12 +180,12 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
 
         const mappedDetails = values.import_cost_details
 
-        // addMutation.mutate({
-        //     importCosts: mappedData,
-        //     details: mappedDetails
-        // })
+        addMutation.mutate({
+            importCosts: mappedData,
+            details: mappedDetails
+        })
         
-        // onOpenChange(false);
+        onOpenChange(false);
     } catch (error) {
         console.error("Error in onSubmit function:", error);
     } finally {
@@ -1687,6 +1687,22 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                       </FormItem>
                   )} />
               )}      
+              {importCost && (
+                  <FormField name="net_total_warehouse_cost_calculated" render={({ field }) => (
+                      <FormItem>
+                          <FormLabel htmlFor="net_total_warehouse_cost_calculated">Costo Total Neto Almacene (CALCULADO)</FormLabel>
+                          <FormControl>
+                              <Input
+                                  id="net_total_warehouse_cost_calculated"
+                                  type="number"
+                                  disabled={importCost ? true : false}  
+                                  value={importCost?.net_total_warehouse_cost_calculated ?? 0} // Valor predeterminado es 0
+                              />
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )} />
+              )}   
               {importCost && (
                   <FormField name="unitary_cost" render={({ field }) => (
                       <FormItem>

@@ -36,13 +36,25 @@ export const calculateImportCostValues = async (costs: ImportCostsFormSchema): P
         
         const NTWC = TWC - costs.cf_iva
 
-        console.log(TWC)
-
-        const TWC_IVA = (costs.consolidated_tax_duty_iva +
+        const TWC_IVA = (
+            costs.consolidated_tax_duty_iva +
             costs.value_added_tax_iva_iva +
             costs.specific_consumption_tax_ice_iva +
             costs.other_penalties_iva +
-            costs.albo_customs_storage_iva + costs.albo_customs_logistics_iva + costs.dui_forms_iva + costs.djv_forms_iva + costs.other_expenses_ii_iva + costs.chamber_of_commerce_iva + costs.senasag_iva + costs.custom_agent_commissions_iva + costs.financial_commissions_iva + costs.other_commissions_iva + costs.national_transportation_iva + costs.insurance_iva + costs.handling_and_storage_iva + costs.other_expenses_iii_iva + costs.optional_expense_1_iva + costs.optional_expense_2_iva + costs.optional_expense_3_iva + costs.optional_expense_4_iva + costs.optional_expense_5_iva)
+            costs.albo_customs_storage_iva +
+            costs.albo_customs_logistics_iva +
+            costs.dui_forms_iva +
+            costs.djv_forms_iva +
+            costs.other_expenses_ii_iva +
+            costs.chamber_of_commerce_iva +
+            costs.senasag_iva +
+            costs.custom_agent_commissions_iva +
+            costs.financial_commissions_iva +
+            costs.other_commissions_iva +
+            costs.national_transportation_iva +
+            costs.insurance_iva +
+            costs.handling_and_storage_iva +
+            costs.other_expenses_iii_iva + costs.optional_expense_1_iva + costs.optional_expense_2_iva + costs.optional_expense_3_iva + costs.optional_expense_4_iva + costs.optional_expense_5_iva)
 
         console.log(TWC_IVA)
 
