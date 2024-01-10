@@ -31,13 +31,33 @@ export const calculateImportCostValues = async (costs: ImportCostsFormSchema): P
         importCostDetails = importCostDetails.map(item => ({ ...item, coefficient_value: (item.qty * item.unitary_price) / FOB }))
         
         const CIF = FOB + costs.maritime_transportation + costs.land_transportation + costs.foreign_insurance + costs.aspb_port_expenses + costs.intermediary_commissions + costs.other_expenses_i
+
+        const TWC =  CIF + costs.consolidated_tax_duty + costs.value_added_tax_iva + costs.specific_consumption_tax_ice + costs.other_penalties + costs.albo_customs_storage + costs.albo_customs_logistics + costs.dui_forms + costs.djv_forms + costs.other_expenses_ii + costs.chamber_of_commerce + costs.senasag + costs.custom_agent_commissions + costs.financial_commissions + costs.other_commissions + costs.national_transportation + costs.insurance + costs.handling_and_storage + costs.other_expenses_iii + costs.optional_expense_1 + costs.optional_expense_2 + costs.optional_expense_3 + costs.optional_expense_4 + costs.optional_expense_5
         
-        const NTWC = costs.total_warehouse_cost - costs.cf_iva
+        const NTWC = TWC - costs.cf_iva
+
+        console.log(TWC)
+
+        const TWC_IVA = (costs.consolidated_tax_duty_iva +
+            costs.value_added_tax_iva_iva +
+            costs.specific_consumption_tax_ice_iva +
+            costs.other_penalties_iva +
+            costs.albo_customs_storage_iva + costs.albo_customs_logistics_iva + costs.dui_forms_iva + costs.djv_forms_iva + costs.other_expenses_ii_iva + costs.chamber_of_commerce_iva + costs.senasag_iva + costs.custom_agent_commissions_iva + costs.financial_commissions_iva + costs.other_commissions_iva + costs.national_transportation_iva + costs.insurance_iva + costs.handling_and_storage_iva + costs.other_expenses_iii_iva + costs.optional_expense_1_iva + costs.optional_expense_2_iva + costs.optional_expense_3_iva + costs.optional_expense_4_iva + costs.optional_expense_5_iva)
+
+        console.log(TWC_IVA)
+
+        console.log(costs.senasag_iva)
+
+        const NTWCC = TWC - TWC_IVA
+
+        console.log(NTWCC)
 
         let results: IntermediateImportCostsReturnSchema = {
             fob_value: Number(FOB.toFixed(2)),
             cif_value: Number(CIF.toFixed(2)),
+            total_warehouse_cost: Number(TWC.toFixed(2)),
             net_total_warehouse_cost: Number(NTWC.toFixed(2)),
+            net_total_warehouse_cost_calculated:Number(NTWCC.toFixed(2)),
             import_cost_details: importCostDetails.map(item => {
                 
                 const subtotal_ntwc = NTWC * item.coefficient_value

@@ -76,12 +76,22 @@ export const createImportCostsColumns = (
   {
     accessorKey: "providerName",
     header: "Proveedor"
-  }, 
+    }, 
+    {
+      accessorKey: "total_warehouse_cost",
+      header: "Costo Total Almacenes",
+      cell: ({row}) => formatBOB(row.original.total_warehouse_cost)
+  },
   {
   accessorKey: "net_total_warehouse_cost",
-    header: "Costo total Neto Almacenes",
+    header: "Costo Total Neto Almacenes",
     cell: ({row}) => formatBOB(row.original.net_total_warehouse_cost)
     },
+    {
+      accessorKey: "net_total_warehouse_cost_calculated",
+        header: "Costo Total Neto Almacenes CALCULADO",
+        cell: ({row}) => formatBOB(row.original.net_total_warehouse_cost_calculated)
+        },
     {
       id: "costos_unitarios",
       header: "Costos Unitarios",

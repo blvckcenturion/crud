@@ -38,7 +38,6 @@ interface ImportCostsFormProps {
 }
 
 export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormProps) {
-    console.log(importCost)
   const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
     const router = useRouter()
@@ -60,52 +59,74 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
           other_expenses_i: 0, // Default value for 'other_expenses_i'
           other_expenses_i_detail: '', // Default value for 'other_expenses_i_detail'
           consolidated_tax_duty: 0, // Default value for 'consolidated_tax_duty'
+          consolidated_tax_duty_iva: 0, // Default value for 'consolidated_tax_duty'
           consolidated_tax_duty_detail: '', // Default value for 'consolidated_tax_duty_detail'
           value_added_tax_iva: 0, // Default value for 'value_added_tax_iva'
+          value_added_tax_iva_iva: 0, // Default value for 'value_added_tax_iva'
           value_added_tax_iva_detail: '', // Default value for 'value_added_tax_iva_detail'
           specific_consumption_tax_ice: 0, // Default value for 'specific_consumption_tax_ice'
+          specific_consumption_tax_ice_iva: 0, // Default value for 'specific_consumption_tax_ice'
           specific_consumption_tax_ice_detail: '', // Default value for 'specific_consumption_tax_ice_detail'
           other_penalties: 0, // Default value for 'other_penalties'
+          other_penalties_iva: 0, // Default value for 'other_penalties'
           other_penalties_detail: '', // Default value for 'other_penalties_detail'
           albo_customs_storage: 0, // Default value for 'albo_customs_storage'
+          albo_customs_storage_iva: 0, // Default value for 'albo_customs_storage'
           albo_customs_storage_detail: '', // Default value for 'albo_customs_storage_detail'
           albo_customs_logistics: 0, // Default value for 'albo_customs_logistics'
+          albo_customs_logistics_iva: 0, // Default value for 'albo_customs_logistics'
           albo_customs_logistics_detail: '', // Default value for 'albo_customs_logistics_detail'
           dui_forms: 0, // Default value for 'dui_forms'
+          dui_forms_iva: 0, // Default value for 'dui_forms'
           dui_forms_detail: '', // Default value for 'dui_forms_detail'
           djv_forms: 0, // Default value for 'djv_forms'
+          djv_forms_iva: 0, // Default value for 'djv_forms'
           djv_forms_detail: '', // Default value for 'djv_forms_detail'
           other_expenses_ii: 0, // Default value for 'other_expenses_ii'
+          other_expenses_ii_iva: 0, // Default value for 'other_expenses_ii'
           other_expenses_ii_detail: '', // Default value for 'other_expenses_ii_detail'
           chamber_of_commerce: 0, // Default value for 'chamber_of_commerce'
+          chamber_of_commerce_iva: 0, // Default value for 'chamber_of_commerce'
           chamber_of_commerce_detail: '', // Default value for 'chamber_of_commerce_detail'
           senasag: 0, // Default value for 'senasag'
+          senasag_iva: 0, // Default value for 'senasag'
           senasag_detail: '', // Default value for 'senasag_detail'
           custom_agent_commissions: 0, // Default value for 'custom_agent_commissions'
+          custom_agent_commissions_iva: 0, // Default value for 'custom_agent_commissions'
           custom_agent_commissions_detail: '', // Default value for 'custom_agent_commissions_detail'
           financial_commissions: 0, // Default value for 'financial_commissions'
+          financial_commissions_iva: 0, // Default value for 'financial_commissions'
           financial_commissions_detail: '', // Default value for 'financial_commissions_detail'
           other_commissions: 0, // Default value for 'other_commissions'
+          other_commissions_iva: 0, // Default value for 'other_commissions'
           other_commissions_detail: '', // Default value for 'other_commissions_detail'
           national_transportation: 0, // Default value for 'national_transportation'
+          national_transportation_iva: 0, // Default value for 'national_transportation'
           national_transportation_detail: '', // Default value for 'national_transportation_detail'
           insurance: 0, // Default value for 'insurance'
+          insurance_iva: 0, // Default value for 'insurance'
           insurance_detail: '', // Default value for 'insurance_detail'
           handling_and_storage: 0, // Default value for 'handling_and_storage'
+          handling_and_storage_iva: 0, // Default value for 'handling_and_storage'
           handling_and_storage_detail: '', // Default value for 'handling_and_storage_detail'
           other_expenses_iii: 0, // Default value for 'other_expenses_iii'
+          other_expenses_iii_iva: 0, // Default value for 'other_expenses_iii'
           other_expenses_iii_detail: '', // Default value for 'other_expenses_iii_detail'
           optional_expense_1: 0, // Default value for 'optional_expense_1'
+          optional_expense_1_iva: 0, // Default value for 'optional_expense_1'
           optional_expense_1_detail: '', // Default value for 'optional_expense_1_detail'
           optional_expense_2: 0, // Default value for 'optional_expense_2'
+          optional_expense_2_iva: 0, // Default value for 'optional_expense_2'
           optional_expense_2_detail: '', // Default value for 'optional_expense_2_detail'
           optional_expense_3: 0, // Default value for 'optional_expense_3'
+          optional_expense_3_iva: 0, // Default value for 'optional_expense_3'
           optional_expense_3_detail: '', // Default value for 'optional_expense_3_detail'
           optional_expense_4: 0, // Default value for 'optional_expense_4'
+          optional_expense_4_iva: 0, // Default value for 'optional_expense_4'
           optional_expense_4_detail: '', // Default value for 'optional_expense_4_detail'
           optional_expense_5: 0, // Default value for 'optional_expense_5'
+          optional_expense_5_iva: 0, // Default value for 'optional_expense_5'
           optional_expense_5_detail: '', // Default value for 'optional_expense_5_detail'
-          total_warehouse_cost: 0,
           cf_iva: 0,
       },
   });
@@ -148,19 +169,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
         const values: IntermediateImportCostsReturnSchema = await calculateImportCostValues(data)
         const mappedData: InsertImportCostsSchema = {
             ...data,
+            total_warehouse_cost: values.total_warehouse_cost,
             fob_value: values.fob_value,
             cif_value: values.cif_value,
-            net_total_warehouse_cost: values.net_total_warehouse_cost
+            net_total_warehouse_cost: values.net_total_warehouse_cost,
+            net_total_warehouse_cost_calculated: values.net_total_warehouse_cost_calculated
         }
+
+        console.log(mappedData)
 
         const mappedDetails = values.import_cost_details
 
-        addMutation.mutate({
-            importCosts: mappedData,
-            details: mappedDetails
-        })
+        // addMutation.mutate({
+        //     importCosts: mappedData,
+        //     details: mappedDetails
+        // })
         
-        onOpenChange(false);
+        // onOpenChange(false);
     } catch (error) {
         console.error("Error in onSubmit function:", error);
     } finally {
@@ -453,6 +478,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   </FormControl>
                   <FormMessage />
               </FormItem>
+        )} />
+              
+        {/* Gravamen Impuesto Consolidado (GAC) IVA Field */}
+          <FormField control={form.control} name="consolidated_tax_duty_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="consolidated_tax_duty_iva">IVA | Gravamen Impuesto Consolidado (GAC)</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="consolidated_tax_duty_iva"
+                          type="number"
+                          disabled={importCost ? true : false}  
+                          value={field.value} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
           )} />
 
           {/* Gravamen Impuesto Consolidado (GAC) Detail Field */}
@@ -470,7 +512,9 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   </FormControl>
                   <FormMessage />
               </FormItem>
-          )} />
+              )} />
+              
+            
 
           {/* Impuesto al Valor Agregado (IVA) Field */}
           <FormField control={form.control} name="value_added_tax_iva" render={({ field }) => (
@@ -479,6 +523,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="value_added_tax_iva"
+                          type="number"
+                          disabled={importCost ? true : false}  
+                          value={field.value} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
+              )} />
+              
+              {/* IVA Impuesto al Valor Agregado (IVA) Field */}
+          <FormField control={form.control} name="value_added_tax_iva_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="value_added_tax_iva_iva">IVA | Impuesto al Valor Agregado (IVA)</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="value_added_tax_iva_iva"
                           type="number"
                           disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
@@ -521,6 +582,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   </FormControl>
                   <FormMessage />
               </FormItem>
+              )} />
+              
+              {/* Impuesto al Consumo Especifico (ICE) Field */}
+          <FormField control={form.control} name="specific_consumption_tax_ice_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="specific_consumption_tax_ice_iva">IVA | Impuesto al Consumo Especifico (ICE)</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="specific_consumption_tax_ice_iva"
+                          type="number"
+                          disabled={importCost ? true : false}  
+                          value={field.value} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
           )} />
 
           {/* Impuesto al Consumo Especifico (ICE) Detail Field */}
@@ -547,6 +625,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="other_penalties"
+                          type="number"
+                          disabled={importCost ? true : false}  
+                          value={field.value} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
+              )} />
+              
+            {/* Contravenciones Otros Field */}
+          <FormField control={form.control} name="other_penalties_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="other_penalties_iva">IVA | Contravenciones Otros</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="other_penalties_iva"
                           type="number"
                           disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
@@ -589,6 +684,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                 </FormControl>
                 <FormMessage />
             </FormItem>
+              )} />
+              
+        {/* Almacenaje Aduana ALBO S.A. Field */}
+        <FormField control={form.control} name="albo_customs_storage_iva" render={({ field }) => (
+            <FormItem>
+                <FormLabel htmlFor="albo_customs_storage_iva">IVA | Almacenaje Aduana ALBO S.A.</FormLabel>
+                <FormControl>
+                    <Input
+                        id="albo_customs_storage_iva"
+                        type="number"
+                        disabled={importCost ? true : false}  
+                        value={field.value} // Valor predeterminado es 0
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
         )} />
 
         {/* Almacenaje Aduana ALBO S.A. Detail Field */}
@@ -615,6 +727,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                 <FormControl>
                     <Input
                         id="albo_customs_logistics"
+                        type="number"
+                        disabled={importCost ? true : false}  
+                        value={field.value} // Valor predeterminado es 0
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+              )} />
+              
+        {/* Logística Aduana ALBO S.A. Field */}
+        <FormField control={form.control} name="albo_customs_logistics_iva" render={({ field }) => (
+            <FormItem>
+                <FormLabel htmlFor="albo_customs_logistics_iva">IVA | Logística Aduana ALBO S.A.</FormLabel>
+                <FormControl>
+                    <Input
+                        id="albo_customs_logistics_iva"
                         type="number"
                         disabled={importCost ? true : false}  
                         value={field.value} // Valor predeterminado es 0
@@ -657,6 +786,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                 </FormControl>
                 <FormMessage />
             </FormItem>
+              )} />
+              
+        {/* Formularios DUI Field */}
+        <FormField control={form.control} name="dui_forms_iva" render={({ field }) => (
+            <FormItem>
+                <FormLabel htmlFor="dui_forms_iva">IVA | Formularios DUI</FormLabel>
+                <FormControl>
+                    <Input
+                        id="dui_forms_iva"
+                        type="number"
+                        disabled={importCost ? true : false}  
+                        value={field.value} // Valor predeterminado es 0
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
         )} />
 
         {/* Formularios DUI Detail Field */}
@@ -683,6 +829,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                 <FormControl>
                     <Input
                         id="djv_forms"
+                        type="number"
+                        disabled={importCost ? true : false}  
+                        value={field.value} // Valor predeterminado es 0
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+              )} />
+              
+              {/* Formularios DJV Field */}
+        <FormField control={form.control} name="djv_forms_iva" render={({ field }) => (
+            <FormItem>
+                <FormLabel htmlFor="djv_forms_iva">IVA | Formularios DJV</FormLabel>
+                <FormControl>
+                    <Input
+                        id="djv_forms_iva"
                         type="number"
                         disabled={importCost ? true : false}  
                         value={field.value} // Valor predeterminado es 0
@@ -726,6 +889,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   </FormControl>
                   <FormMessage />
               </FormItem>
+              )} />
+              
+        {/* Otros Gastos II Field */}
+        <FormField control={form.control} name="other_expenses_ii_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="other_expenses_ii_iva">IVA | Otros Gastos II</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="other_expenses_ii_iva"
+                          type="number"
+                          disabled={importCost ? true : false}  
+                          value={field.value} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
           )} />
 
           {/* Otros Gastos II Detail Field */}
@@ -752,6 +932,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="chamber_of_commerce"
+                          type="number"
+                          disabled={importCost ? true : false}  
+                          value={field.value} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
+              )} />
+              
+              {/* Cámara Comercio Field */}
+          <FormField control={form.control} name="chamber_of_commerce_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="chamber_of_commerce_iva">IVA | Cámara Comercio</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="chamber_of_commerce_iva"
                           type="number"
                           disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
@@ -794,6 +991,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   </FormControl>
                   <FormMessage />
               </FormItem>
+              )} />
+              
+        {/* Senasag Field */}
+        <FormField control={form.control} name="senasag_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="senasag_iva">IVA | Senasag</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="senasag_iva"
+                          type="number"
+                          disabled={importCost ? true : false}  
+                          value={field.value} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
           )} />
 
           {/* Senasag Detail Field */}
@@ -820,6 +1034,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="custom_agent_commissions"
+                          type="number"
+                          disabled={importCost ? true : false}  
+                          value={field.value} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
+              )} />
+              
+        {/* Comisiones Agente Despachante Aduana Field */}
+        <FormField control={form.control} name="custom_agent_commissions_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="custom_agent_commissions_iva">IVA | Comisiones Agente Despachante Aduana</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="custom_agent_commissions_iva"
                           type="number"
                           disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
@@ -862,6 +1093,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   </FormControl>
                   <FormMessage />
               </FormItem>
+              )} />
+              
+        {/* Comisiones Financieras Field */}
+        <FormField control={form.control} name="financial_commissions_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="financial_commissions_iva">IVA | Comisiones Financieras</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="financial_commissions_iva"
+                          type="number"
+                          disabled={importCost ? true : false}  
+                          value={field.value} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
           )} />
 
           {/* Comisiones Financieras Detail Field */}
@@ -888,6 +1136,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="other_commissions"
+                          type="number"
+                          disabled={importCost ? true : false}  
+                          value={field.value} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
+              )} />
+              
+            {/* Otras Comisiones Field */}
+          <FormField control={form.control} name="other_commissions_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="other_commissions_iva">IVA | Otras Comisiones</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="other_commissions_iva"
                           type="number"
                           disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
@@ -930,6 +1195,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   </FormControl>
                   <FormMessage />
               </FormItem>
+              )} />
+              
+            {/* Transporte Nacional Field */}
+          <FormField control={form.control} name="national_transportation_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="national_transportation_iva">IVA Transporte Nacional</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="national_transportation_iva"
+                          type="number"
+                          disabled={importCost ? true : false}  
+                          value={field.value} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
           )} />
 
           {/* Transporte Nacional Detail Field */}
@@ -956,6 +1238,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="insurance"
+                          type="number"
+                          disabled={importCost ? true : false}  
+                          value={field.value} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
+              )} />
+              
+        {/* Seguros Field */}
+        <FormField control={form.control} name="insurance_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="insurance_iva">IVA | Seguros</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="insurance_iva"
                           type="number"
                           disabled={importCost ? true : false}  
                           value={field.value} // Valor predeterminado es 0
@@ -998,6 +1297,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                 </FormControl>
                 <FormMessage />
             </FormItem>
+              )} />
+              
+        {/* Cargos y Manipuleo Field */}
+        <FormField control={form.control} name="handling_and_storage_iva" render={({ field }) => (
+            <FormItem>
+                <FormLabel htmlFor="handling_and_storage_iva">IVA | Cargos y Manipuleo</FormLabel>
+                <FormControl>
+                    <Input
+                        id="handling_and_storage_iva"
+                        type="number"
+                        disabled={importCost ? true : false}  
+                        value={field.value} // Valor predeterminado es 0
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
         )} />
 
         {/* Cargos y Manipuleo Detail Field */}
@@ -1024,6 +1340,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                 <FormControl>
                     <Input
                         id="other_expenses_iii"
+                        type="number"
+                        disabled={importCost ? true : false}  
+                        value={field.value} // Valor predeterminado es 0
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+              )} />
+              
+        {/* Otros Gastos III Field */}
+        <FormField control={form.control} name="other_expenses_iii_iva" render={({ field }) => (
+            <FormItem>
+                <FormLabel htmlFor="other_expenses_iii_iva">IVA | Otros Gastos III</FormLabel>
+                <FormControl>
+                    <Input
+                        id="other_expenses_iii_iva"
                         type="number"
                         disabled={importCost ? true : false}  
                         value={field.value} // Valor predeterminado es 0
@@ -1066,6 +1399,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   </FormControl>
                   <FormMessage />
               </FormItem>
+              )} />
+              
+        {/* Gasto opcional 1 Field */}
+        <FormField control={form.control} name="optional_expense_1_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="optional_expense_1_iva">IVA | Gasto opcional 1</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="optional_expense_1_iva"
+                              type="number"
+                              disabled={importCost ? true : false}  
+                          value={field.value || 0} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
           )} />
 
           {/* Gasto opcional 1 Detail Field */}
@@ -1092,6 +1442,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="optional_expense_2"
+                              type="number"
+                              disabled={importCost ? true : false}  
+                          value={field.value || 0} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
+              )} />
+              
+        {/* Gasto opcional 1 Field */}
+        <FormField control={form.control} name="optional_expense_2_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="optional_expense_2_iva">IVA | Gasto opcional 2</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="optional_expense_2_iva"
                               type="number"
                               disabled={importCost ? true : false}  
                           value={field.value || 0} // Valor predeterminado es 0
@@ -1134,6 +1501,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   </FormControl>
                   <FormMessage />
               </FormItem>
+              )} />
+              
+        {/* Gasto opcional 3 Field */}
+        <FormField control={form.control} name="optional_expense_3_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="optional_expense_3_iva">IVA | Gasto opcional 3</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="optional_expense_3_iva"
+                              type="number"
+                              disabled={importCost ? true : false}  
+                          value={field.value || 0} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
           )} />
 
           {/* Gasto opcional 3 Detail Field */}
@@ -1160,6 +1544,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormControl>
                       <Input
                           id="optional_expense_4"
+                              type="number"
+                              disabled={importCost ? true : false}  
+                          value={field.value || 0} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
+              )} />
+              
+        {/* Gasto opcional 4 Field */}
+        <FormField control={form.control} name="optional_expense_4_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="optional_expense_4_iva">IVA | Gasto opcional 4</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="optional_expense_4_iva"
                               type="number"
                               disabled={importCost ? true : false}  
                           value={field.value || 0} // Valor predeterminado es 0
@@ -1202,6 +1603,23 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   </FormControl>
                   <FormMessage />
               </FormItem>
+              )} />
+              
+        {/* Gasto opcional 5 Field */}
+        <FormField control={form.control} name="optional_expense_5_iva" render={({ field }) => (
+              <FormItem>
+                  <FormLabel htmlFor="optional_expense_5_iva">IVA | Gasto opcional 5</FormLabel>
+                  <FormControl>
+                      <Input
+                          id="optional_expense_5_iva"
+                              type="number"
+                              disabled={importCost ? true : false}  
+                          value={field.value || 0} // Valor predeterminado es 0
+                          onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
           )} />
 
           {/* Gasto opcional 5 Detail Field */}
@@ -1220,23 +1638,6 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                   <FormMessage />
               </FormItem>
         )} />
-        
-        {/* Costo Total Almacenes Field */}
-        <FormField control={form.control} name="total_warehouse_cost" render={({ field }) => (
-            <FormItem>
-                <FormLabel htmlFor="total_warehouse_cost">Costo Total Almacenes</FormLabel>
-                <FormControl>
-                    <Input
-                        id="total_warehouse_cost"
-                        type="number"
-                        disabled={importCost ? true : false}  
-                        value={field.value || 0} // Valor predeterminado es 0
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                </FormControl>
-                <FormMessage />
-            </FormItem>
-        )} />
 
         {/* CF IVA Field */}
         <FormField control={form.control} name="cf_iva" render={({ field }) => (
@@ -1254,7 +1655,22 @@ export function ImportCostsForm({ importCost, onOpenChange }: ImportCostsFormPro
                 <FormMessage />
             </FormItem>
               )} />
-              
+              {importCost && (
+                  <FormField name="total_warehouse_cost" render={({ field }) => (
+                      <FormItem>
+                          <FormLabel htmlFor="net_total_warehouse_cost">Costo Total Almacenes</FormLabel>
+                          <FormControl>
+                              <Input
+                                  id="net_total_warehouse_cost"
+                                  type="number"
+                                  disabled={importCost ? true : false}  
+                                  value={importCost?.total_warehouse_cost ?? 0} // Valor predeterminado es 0
+                              />
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )} />
+              )} 
               {importCost && (
                   <FormField name="net_total_warehouse_cost" render={({ field }) => (
                       <FormItem>
