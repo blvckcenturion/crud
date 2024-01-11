@@ -14,6 +14,235 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { format, parseISO } from 'date-fns';
 import { Checkbox } from "@/components/ui/checkbox";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+
+interface TransposedRow {
+  Variable: string;
+  [key: string]: any; // This allows any number of additional properties with string keys
+}
+interface ColumnNamesType {
+  [key: string]: string;
+}
+
+interface RowType {
+  [key: string]: any;
+}
+
+// Example column name mapping
+const columnNames: ColumnNamesType = {
+  id: "ID",
+  order_id: "ID de Pedido",
+  active: "Activo",
+  created_at: "Fecha de Creación",
+  updated_at: "Fecha de Actualización",
+  maritime_transportation: "Transporte Marítimo",
+  maritime_transportation_detail: "Detalle del Transporte Marítimo",
+  land_transportation: "Transporte Terrestre",
+  land_transportation_detail: "Detalle del Transporte Terrestre",
+  foreign_insurance: "Seguro Extranjero",
+  foreign_insurance_detail: "Detalle del Seguro Extranjero",
+  aspb_port_expenses: "Gastos de Puerto ASPB",
+  aspb_port_expenses_detail: "Detalle de Gastos de Puerto ASPB",
+  intermediary_commissions: "Comisiones de Intermediarios",
+  intermediary_commissions_detail: "Detalle de Comisiones de Intermediarios",
+  other_expenses_i: "Otros Gastos I",
+  other_expenses_i_detail: "Detalle de Otros Gastos I",
+  consolidated_tax_duty: "Derecho de Impuesto Consolidado",
+  consolidated_tax_duty_detail: "Detalle del Derecho de Impuesto Consolidado",
+  value_added_tax_iva: "IVA (Impuesto al Valor Agregado)",
+  value_added_tax_iva_detail: "Detalle del IVA",
+  specific_consumption_tax_ice: "ICE (Impuesto al Consumo Específico)",
+  specific_consumption_tax_ice_detail: "Detalle del ICE",
+  other_penalties: "Otras Penalizaciones",
+  other_penalties_detail: "Detalle de Otras Penalizaciones",
+  albo_customs_storage: "Almacén Aduanero Albo",
+  albo_customs_storage_detail: "Detalle del Almacén Aduanero Albo",
+  albo_customs_logistics: "Logística Aduanera Albo",
+  albo_customs_logistics_detail: "Detalle de la Logística Aduanera Albo",
+  dui_forms: "Formularios DUI",
+  dui_forms_detail: "Detalle de Formularios DUI",
+  djv_forms: "Formularios DJV",
+  djv_forms_detail: "Detalle de Formularios DJV",
+  other_expenses_ii: "Otros Gastos II",
+  other_expenses_ii_detail: "Detalle de Otros Gastos II",
+  chamber_of_commerce: "Cámara de Comercio",
+  chamber_of_commerce_detail: "Detalle de la Cámara de Comercio",
+  senasag: "SENASAG",
+  senasag_detail: "Detalle del SENASAG",
+  custom_agent_commissions: "Comisiones del Agente Aduanal",
+  custom_agent_commissions_detail: "Detalle de Comisiones del Agente Aduanal",
+  financial_commissions: "Comisiones Financieras",
+  financial_commissions_detail: "Detalle de Comisiones Financieras",
+  other_commissions: "Otras Comisiones",
+  other_commissions_detail: "Detalle de Otras Comisiones",
+  national_transportation: "Transporte Nacional",
+  national_transportation_detail: "Detalle del Transporte Nacional",
+  insurance: "Seguro",
+  insurance_detail: "Detalle del Seguro",
+  handling_and_storage: "Manejo y Almacenamiento",
+  handling_and_storage_detail: "Detalle de Manejo y Almacenamiento",
+  other_expenses_iii: "Otros Gastos III",
+  other_expenses_iii_detail: "Detalle de Otros Gastos III",
+  optional_expense_1: "Gasto Opcional 1",
+  optional_expense_1_detail: "Detalle del Gasto Opcional 1",
+  optional_expense_2: "Gasto Opcional 2",
+  optional_expense_2_detail: "Detalle del Gasto Opcional 2",
+  optional_expense_3: "Gasto Opcional 3",
+  optional_expense_3_detail: "Detalle del Gasto Opcional 3",
+  optional_expense_4: "Gasto Opcional 4",
+  optional_expense_4_detail: "Detalle del Gasto Opcional 4",
+  optional_expense_5: "Gasto Opcional 5",
+  optional_expense_5_detail: "Detalle del Gasto Opcional 5",
+  fob_value: "Valor FOB",
+  cif_value: "Valor CIF",
+  total_warehouse_cost: "Costo Total de Almacenamiento",
+  cf_iva: "CF IVA",
+  net_total_warehouse_cost: "Costo Neto Total de Almacenamiento",
+  import_costs_detail: "Detalle de Costos de Importación",
+  providerName: "Nombre del Proveedor",
+};
+
+const calculoColumns: string[] = [
+  "maritime_transportation",
+  "land_transportation",
+  "foreign_insurance",
+  "aspb_port_expenses",
+  "intermediary_commissions",
+  "other_expenses_i",
+  "consolidated_tax_duty",
+  "value_added_tax_iva",
+  "specific_consumption_tax_ice",
+  "other_penalties",
+  "albo_customs_storage",
+  "albo_customs_logistics",
+  "dui_forms",
+  "djv_forms",
+  "other_expenses_ii",
+  "chamber_of_commerce",
+  "senasag",
+  "custom_agent_commissions",
+  "financial_commissions",
+  "other_commissions",
+  "national_transportation",
+  "insurance",
+  "handling_and_storage",
+  "other_expenses_iii",
+  "optional_expense_1",
+  "optional_expense_2",
+  "optional_expense_3",
+  "optional_expense_4",
+  "optional_expense_5",
+];
+  
+
+const selectColumnsForCalculo = (
+  data: any[], 
+  columns: string[], 
+  columnNames: ColumnNamesType
+) => {
+  return data.map((row: any) => {
+    const newRow: Record<string, any> = {};
+    columns.forEach((column) => {
+      const translatedColumnName = columnNames[column];
+      if (translatedColumnName) {
+        newRow[translatedColumnName] = row[column];
+      }
+    });
+    return newRow;
+  });
+};
+
+const exportToExcel = (
+  data: any,
+  fileName: string,
+  columnNames: Record<string, string>,
+  calculoColumns: string[] = []
+) => {
+  const transposedData = transposeData(data, columnNames);
+  const worksheet = XLSX.utils.json_to_sheet(transposedData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+  // Create the "Calculo" sheet with selected columns
+  const calculoData = selectColumnsForCalculo(data, calculoColumns, columnNames);
+  const calculoWorksheet = XLSX.utils.json_to_sheet(calculoData);
+  XLSX.utils.book_append_sheet(workbook, calculoWorksheet, "Calculo");
+  
+  XLSX.writeFile(workbook, `${fileName}.xlsx`);
+};
+
+const transposeData = (
+  data: any[],
+  columnNames: Record<string, string>
+): TransposedRow[] => {
+  // Assuming 'data' is an array of objects
+
+  // Create an array of column names based on the provided columnNames map
+  let headers = Object.keys(columnNames);
+
+  // Initialize the transposed data with headers
+  let transposedData: TransposedRow[] = headers.map((header) => ({
+    Variable: columnNames[header],
+  }));
+
+  // Transpose the data
+  data.forEach((item, rowIndex) => {
+    headers.forEach((header, colIndex) => {
+      transposedData[colIndex][`Valor ${rowIndex + 1}`] = item[header];
+    });
+  });
+
+  return transposedData;
+};
+
+const exportPDF = (row: RowType) => {
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "pt",
+    format: "a4",
+  });
+
+  let x = 40; // Horizontal position (left margin)
+  let y = 60; // Vertical position (top margin)
+
+  const firstColumnWidth = 260;
+  const secondColumnWidth = 220;
+  const rowHeight = 20; // Height of each row
+  const padding = -1; // Padding inside each cell
+
+  // Draw table headers
+  pdf.setFontSize(12);
+  pdf.text("Concepto", x + padding, y + padding);
+  pdf.text("Valor", x + firstColumnWidth + padding, y + padding);
+
+  y += rowHeight; // Move to the next row
+
+  // Draw rows
+  Object.keys(columnNames).forEach((key) => {
+    if (row[key] !== undefined) {
+      pdf.text(columnNames[key], x + padding, y + padding);
+      pdf.text(row[key].toString(), x + firstColumnWidth + padding, y + padding);
+      y += rowHeight;
+    }
+  });
+
+  // Draw grid lines
+  const endY = y; // Y position after the last row
+  y = 60; // Reset y to the start position of the table
+
+  // Vertical lines
+  pdf.lines([[0, endY - y]], x, y); // First column line
+  pdf.lines([[0, endY - y]], x + firstColumnWidth, y); // Second column line
+  pdf.lines([[0, endY - y]], x + firstColumnWidth + secondColumnWidth, y); // Rightmost line
+
+  // Horizontal lines
+  for (let currentY = y; currentY <= endY; currentY += rowHeight) {
+    pdf.lines([[firstColumnWidth + secondColumnWidth, 0]], x, currentY); // Row line
+  }
+
+  pdf.save("exported-data.pdf");
+};
 
 const formatBOB = (value: number) => `$${value.toFixed(2)} BOB`;
 
@@ -157,6 +386,16 @@ export const createImportCostsColumns = (
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Acciones</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => openUpdateDialog(row.original)}>Ver Detalles</DropdownMenuItem>
+              <DropdownMenuItem
+              onClick={() =>
+                exportToExcel([row.original], "ExportData", columnNames, calculoColumns)
+              }
+            >
+              Exportar Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => exportPDF(row.original)}>
+              Exportar PDF
+            </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
       )
