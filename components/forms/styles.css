@@ -1,9 +1,0 @@
-.form-flex {
-    display: flex;
-    justify-content: space-between; /* Adjust as needed */
-  }
-  
-  .column {
-    flex: 1; /* Adjust as needed */
-    margin: 5px;
-  }
