@@ -76,7 +76,7 @@ export function ProviderForm({ provider, onOpenChange }: ProviderFormProps) {
       setIsLoading(true)
 
       if (provider && provider.id) {
-        updateMutation.mutate(data);
+        updateMutation.mutate({providerToUpdate: data, providerId: provider.id});
       } else {
         addMutation.mutate(data);
       }

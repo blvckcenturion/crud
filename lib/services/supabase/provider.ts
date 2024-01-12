@@ -1,6 +1,12 @@
 import { supabase } from "@/lib/client/supabase";
 import { ProviderType, ProvidersWithCountryArraySchema } from "@/lib/schemas/provider";
 
+interface UpdateProviderParams {
+  providerToUpdate: ProviderType;
+  providerId: number;
+}
+
+
 export const fetchActiveProviders = async () => {
     try {
       const { data, error } = await supabase
@@ -39,6 +45,7 @@ export const deactivateProvider = async (providerId: number) => {
 
 // Function to add a new provider
 export const addNewProvider = async (newProvider: ProviderType) => {
+    console.log(newProvider)
     try {
       const { data, error } = await supabase
         .from('providers')
@@ -54,12 +61,12 @@ export const addNewProvider = async (newProvider: ProviderType) => {
 };
   
 // Function to update an existing provider
-export const updateProvider = async (providerToUpdate: ProviderType) => {
+export const updateProvider = async (params: UpdateProviderParams) => {
     try {
         const { data, error } = await supabase
         .from('providers')
-        .update({ ...providerToUpdate, updated_at: new Date().toISOString() })
-        .match({ id: providerToUpdate.id });
+        .update({ ...params.providerToUpdate, updated_at: new Date().toISOString() })
+        .match({ id: params.providerId });
 
         if (error) throw error;
 
