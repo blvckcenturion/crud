@@ -15,6 +15,7 @@ export const fetchActiveProviders = async () => {
           *,
           country:country_id (name)
         `)
+        .eq("active", true)
         .order("id", { ascending: true });
   
       if (error) throw error;

@@ -18,7 +18,7 @@ const UpdateFormDialogComponent: React.FC<UpdateFormDialogComponentProps> = ({
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full sm:w-1/2 sm:max-w-[425px]">
+      <DialogContent style={{ width: '40%' }}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
