@@ -1,7 +1,10 @@
 // importCostsColumns.ts
 
 import { Button } from "@/components/ui/button";
-import { ImportCostsRow, ImportCostsWithDetailsAndProvider } from "../schemas/import-cost"; // Adjust the import path to your import cost schema
+import {
+  ImportCostsRow,
+  ImportCostsWithDetailsAndProvider,
+} from "../schemas/import-cost"; // Adjust the import path to your import cost schema
 
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
@@ -12,10 +15,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { format, parseISO } from 'date-fns';
+import { format, parseISO } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
+
+import { fetchActivePurchaseWithItemsById } from "@/lib/services/supabase/purchase";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
+import { PurchaseWithItemsExtended } from "../schemas/purchase";
+import { Nerko_One } from "next/font/google";
 
 interface TransposedRow {
   Variable: string;
@@ -36,6 +43,11 @@ const columnNames: ColumnNamesType = {
   active: "Activo",
   created_at: "Fecha de Creación",
   updated_at: "Fecha de Actualización",
+  productos: "Productos",
+  cantidad: "Cantidad",
+  precio: "Precio",
+  FOB: "FOB",
+  coefficient_value: "Coeficiente de Distribucion",
   maritime_transportation: "Transporte Marítimo",
   maritime_transportation_detail: "Detalle del Transporte Marítimo",
   land_transportation: "Transporte Terrestre",
@@ -104,6 +116,11 @@ const columnNames: ColumnNamesType = {
 };
 
 const calculoColumns: string[] = [
+  "productos",
+  "cantidad",
+  "precio",
+  "FOB",
+  "coefficient_value",
   "maritime_transportation",
   "land_transportation",
   "foreign_insurance",
@@ -134,14 +151,13 @@ const calculoColumns: string[] = [
   "optional_expense_4",
   "optional_expense_5",
 ];
-  
 
-const selectColumnsForCalculo = (
-  data: any[], 
-  columns: string[], 
+const selectColumnsForCalculo = async (
+  data: any[],
+  columns: string[],
   columnNames: ColumnNamesType
 ) => {
-  return data.map((row: any) => {
+  const formValues = data.map((row: any) => {
     const newRow: Record<string, any> = {};
     columns.forEach((column) => {
       const translatedColumnName = columnNames[column];
@@ -149,30 +165,85 @@ const selectColumnsForCalculo = (
         newRow[translatedColumnName] = row[column];
       }
     });
+    console.log("formValues", newRow);
     return newRow;
   });
+
+  console.log("data", data);
+
+  const productsValues: PurchaseWithItemsExtended | null = await fetchActivePurchaseWithItemsById(data[0].order_id);
+  console.log("productsValeus", productsValues);
+  productsValues?.purchase_items?.forEach((item) => {
+    const newRow: Record<string, any> = {};
+    newRow["Productos"] = item.productName;
+    newRow["Cantidad"] = item.qty;
+    newRow["Precio"] = item.unitary_price;
+    newRow["FOB"] = Number((Number(item.qty.toFixed(2)) * Number(item.unitary_price.toFixed(2))).toFixed(2));
+    const coefficient_value = (Number(item.qty.toFixed(2)) * Number(item.unitary_price.toFixed(2)))/Number(data[0].fob_value.toFixed(2));
+    newRow["Coeficiente de Distribucion"] = coefficient_value;
+    newRow["Transporte Marítimo"] = Number((coefficient_value * Number(data[0].maritime_transportation)).toFixed(2)).toFixed(2);
+    newRow["Transporte Terrestre"] = Number((coefficient_value * Number(data[0].land_transportation)).toFixed(2)).toFixed(2);
+    newRow["Seguro Extranjero"] = Number((coefficient_value * Number(data[0].foreign_insurance)).toFixed(2)).toFixed(2);
+    newRow["Gastos de Puerto ASPB"] = Number((coefficient_value * Number(data[0].aspb_port_expenses)).toFixed(2)).toFixed(2);
+    newRow["Comisiones de Intermediarios"] = Number((coefficient_value * Number(data[0].intermediary_commissions)).toFixed(2)).toFixed(2);
+    newRow["Otros Gastos I"] = Number((coefficient_value * Number(data[0].other_expenses_i)).toFixed(2)).toFixed(2);
+    newRow["Derecho de Impuesto Consolidado"] = Number((coefficient_value * Number(data[0].consolidated_tax_duty)).toFixed(2)).toFixed(2);
+    newRow["IVA (Impuesto al Valor Agregado)"] = Number((coefficient_value * Number(data[0].value_added_tax_iva)).toFixed(2)).toFixed(2);
+    newRow["ICE (Impuesto al Consumo Específico)"] = Number((coefficient_value * Number(data[0].specific_consumption_tax_ice)).toFixed(2)).toFixed(2);
+    newRow["Otras Penalizaciones"] = Number((coefficient_value * Number(data[0].other_penalties)).toFixed(2)).toFixed(2);
+    newRow["Almacén Aduanero Albo"] = Number((coefficient_value * Number(data[0].albo_customs_storage)).toFixed(2)).toFixed(2);
+    newRow["Logística Aduanera Albo"] = Number((coefficient_value * Number(data[0].albo_customs_logistics)).toFixed(2)).toFixed(2);
+    newRow["Formularios DUI"] = Number((coefficient_value * Number(data[0].dui_forms)).toFixed(2)).toFixed(2);
+    newRow["Formularios DJV"] = Number((coefficient_value * Number(data[0].djv_forms)).toFixed(2)).toFixed(2);
+    newRow["Otros Gastos II"] = Number((coefficient_value * Number(data[0].other_expenses_ii)).toFixed(2)).toFixed(2);
+    newRow["Cámara de Comercio"] = Number((coefficient_value * Number(data[0].chamber_of_commerce)).toFixed(2)).toFixed(2);
+    newRow["SENASAG"] = Number((coefficient_value * Number(data[0].senasag)).toFixed(2)).toFixed(2);
+    newRow["Comisiones del Agente Aduanal"] = Number((coefficient_value * Number(data[0].custom_agent_commissions)).toFixed(2)).toFixed(2);
+    newRow["Comisiones Financieras"] = Number((coefficient_value * Number(data[0].financial_commissions)).toFixed(2)).toFixed(2);
+    newRow["Otras Comisiones"] = Number((coefficient_value * Number(data[0].other_commissions)).toFixed(2)).toFixed(2);
+    newRow["Transporte Nacional"] = Number((coefficient_value * Number(data[0].national_transportation)).toFixed(2)).toFixed(2);
+    newRow["Seguro"] = Number((coefficient_value * Number(data[0].insurance)).toFixed(2)).toFixed(2);
+    newRow["Manejo y Almacenamiento"] = Number((coefficient_value * Number(data[0].handling_and_storage)).toFixed(2)).toFixed(2);
+    newRow["Otros Gastos III"] = Number((coefficient_value * Number(data[0].other_expenses_iii)).toFixed(2)).toFixed(2);
+    newRow["Gasto Opcional 1"] = Number((coefficient_value * Number(data[0].optional_expense_1)).toFixed(2)).toFixed(2);
+    newRow["Gasto Opcional 2"] = Number((coefficient_value * Number(data[0].optional_expense_2)).toFixed(2)).toFixed(2);
+    newRow["Gasto Opcional 3"] = Number((coefficient_value * Number(data[0].optional_expense_3)).toFixed(2)).toFixed(2);
+    newRow["Gasto Opcional 4"] = Number((coefficient_value * Number(data[0].optional_expense_4)).toFixed(2)).toFixed(2);
+    newRow["Gasto Opcional 5"] = Number((coefficient_value * Number(data[0].optional_expense_5)).toFixed(2)).toFixed(2);
+
+    formValues.push(newRow);
+  }
+  );
+  console.log("formValues", formValues);
+
+  return formValues;
 };
 
-const exportToExcel = (
+const exportToExcel = async (
   data: any,
   fileName: string,
   columnNames: Record<string, string>,
   calculoColumns: string[] = []
 ) => {
-  const transposedData = transposeData(data, columnNames);
-  const worksheet = XLSX.utils.json_to_sheet(transposedData);
+  const transposedDataResolved = await transposeData(data, columnNames);
+  const worksheet = XLSX.utils.json_to_sheet(transposedDataResolved);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
 
   // Create the "Calculo" sheet with selected columns
-  const calculoData = selectColumnsForCalculo(data, calculoColumns, columnNames);
-  const calculoWorksheet = XLSX.utils.json_to_sheet(calculoData);
+  const calculoData = selectColumnsForCalculo(
+    data,
+    calculoColumns,
+    columnNames
+  );
+  const calculoDataResolved = await calculoData;
+  const calculoWorksheet = XLSX.utils.json_to_sheet(calculoDataResolved);
   XLSX.utils.book_append_sheet(workbook, calculoWorksheet, "Calculo");
-  
+
   XLSX.writeFile(workbook, `${fileName}.xlsx`);
 };
 
-const transposeData = (
+const transposeData =  (
   data: any[],
   columnNames: Record<string, string>
 ): TransposedRow[] => {
@@ -189,7 +260,7 @@ const transposeData = (
   // Transpose the data
   data.forEach((item, rowIndex) => {
     headers.forEach((header, colIndex) => {
-      transposedData[colIndex][`Valor ${rowIndex + 1}`] = item[header];
+      transposedData[colIndex][`Valor${rowIndex + 1}`] = item[header];
     });
   });
 
@@ -222,7 +293,11 @@ const exportPDF = (row: RowType) => {
   Object.keys(columnNames).forEach((key) => {
     if (row[key] !== undefined) {
       pdf.text(columnNames[key], x + padding, y + padding);
-      pdf.text(row[key].toString(), x + firstColumnWidth + padding, y + padding);
+      pdf.text(
+        row[key].toString(),
+        x + firstColumnWidth + padding,
+        y + padding
+      );
       y += rowHeight;
     }
   });
@@ -257,9 +332,8 @@ const renderCostUnitarios = (details: any[]) => (
   </ul>
 );
 
-
 export const createImportCostsColumns = (
-  openDialog: (importCost: ImportCostsRow) => void, 
+  openDialog: (importCost: ImportCostsRow) => void,
   openUpdateDialog: (importCost: ImportCostsRow) => void
 ): ColumnDef<ImportCostsWithDetailsAndProvider>[] => [
   {
@@ -285,51 +359,56 @@ export const createImportCostsColumns = (
     ),
     enableSorting: false,
     enableHiding: false,
-    },
-    {
-      accessorKey: "id",
-      header: "ID de importacion"
+  },
+  {
+    accessorKey: "id",
+    header: "ID de importacion",
   },
   {
     accessorKey: "order_id",
     header: "ID de Compra",
     cell: ({ row }) => {
-      return `ORDEN-${row.original.id}`
-    }
+      return `ORDEN-${row.original.id}`;
     },
-    {
-    accessorKey: "cif_value",
-      header: "Total Valor CIF",
-    cell: ({row}) => formatBOB(row.original.cif_value)
-    },
-  {
-    accessorKey: "providerName",
-    header: "Proveedor"
-    }, 
-    {
-      accessorKey: "total_warehouse_cost",
-      header: "Costo Total Almacenes",
-      cell: ({row}) => formatBOB(row.original.total_warehouse_cost)
   },
   {
-  accessorKey: "net_total_warehouse_cost",
+    accessorKey: "cif_value",
+    header: "Total Valor CIF",
+    cell: ({ row }) => formatBOB(row.original.cif_value),
+  },
+  {
+    accessorKey: "providerName",
+    header: "Proveedor",
+  },
+  {
+    accessorKey: "total_warehouse_cost",
+    header: "Costo Total Almacenes",
+    cell: ({ row }) => formatBOB(row.original.total_warehouse_cost),
+  },
+  {
+    accessorKey: "net_total_warehouse_cost",
     header: "Costo Total Neto Almacenes",
-    cell: ({row}) => formatBOB(row.original.net_total_warehouse_cost)
-    },
-    {
-      accessorKey: "net_total_warehouse_cost_calculated",
-        header: "Costo Total Neto Almacenes CALCULADO",
-        cell: ({row}) => formatBOB(row.original.net_total_warehouse_cost_calculated)
-        },
-    {
-      id: "costos_unitarios",
-      header: "Costos Unitarios",
-      cell: ({ row }) => renderCostUnitarios(row.original.import_costs_detail || [])
-    },  
+    cell: ({ row }) => formatBOB(row.original.net_total_warehouse_cost),
+  },
+  {
+    accessorKey: "net_total_warehouse_cost_calculated",
+    header: "Costo Total Neto Almacenes CALCULADO",
+    cell: ({ row }) =>
+      formatBOB(row.original.net_total_warehouse_cost_calculated),
+  },
+  {
+    id: "costos_unitarios",
+    header: "Costos Unitarios",
+    cell: ({ row }) =>
+      renderCostUnitarios(row.original.import_costs_detail || []),
+  },
   {
     accessorKey: "created_at",
     header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
         Fecha de Creación
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
@@ -337,7 +416,7 @@ export const createImportCostsColumns = (
     cell: ({ row }) => {
       const dateValue = row.original.created_at;
       if (!dateValue) {
-        return 'N/A';
+        return "N/A";
       }
       try {
         const parsedDate = parseISO(dateValue); // parseISO is used for parsing ISO strings
@@ -345,14 +424,17 @@ export const createImportCostsColumns = (
         return formattedDate;
       } catch (error) {
         console.error("Error formatting date:", error);
-        return 'Invalid Date';
+        return "Invalid Date";
       }
-    }
+    },
   },
   {
     accessorKey: "updated_at",
     header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
         Última Actualización
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
@@ -360,7 +442,7 @@ export const createImportCostsColumns = (
     cell: ({ row }) => {
       const dateValue = row.original.updated_at;
       if (!dateValue) {
-        return 'N/A';
+        return "N/A";
       }
       try {
         const parsedDate = parseISO(dateValue); // parseISO is used for parsing ISO strings
@@ -368,27 +450,34 @@ export const createImportCostsColumns = (
         return formattedDate;
       } catch (error) {
         console.error("Error formatting date:", error);
-        return 'Invalid Date';
+        return "Invalid Date";
       }
-    }
+    },
   },
   {
     id: "actions",
-      cell: ({ row }) => {
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Abrir menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => openUpdateDialog(row.original)}>Ver Detalles</DropdownMenuItem>
-              <DropdownMenuItem
+    cell: ({ row }) => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Abrir menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => openUpdateDialog(row.original)}>
+              Ver Detalles
+            </DropdownMenuItem>
+            <DropdownMenuItem
               onClick={() =>
-                exportToExcel([row.original], "ExportData", columnNames, calculoColumns)
+                exportToExcel(
+                  [row.original],
+                  "ExportData",
+                  columnNames,
+                  calculoColumns
+                )
               }
             >
               Exportar Excel
@@ -396,9 +485,9 @@ export const createImportCostsColumns = (
             <DropdownMenuItem onClick={() => exportPDF(row.original)}>
               Exportar PDF
             </DropdownMenuItem>
-            </DropdownMenuContent>
+          </DropdownMenuContent>
         </DropdownMenu>
-      )
+      );
     },
-  }
+  },
 ];
